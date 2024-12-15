@@ -7,7 +7,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract NWERC721Factory is Ownable {
     address[] public collectionsCreated;
-    address payable public feeAccount;
 
     event NFTCollectionsCreated(
         string collectionName,
@@ -16,9 +15,7 @@ contract NWERC721Factory is Ownable {
         uint timestamp
     );
 
-    constructor() Ownable(msg.sender) {
-        feeAccount = payable(owner());
-    }
+    constructor() Ownable(msg.sender) {}
 
     function createNFTCollection(
         string calldata _collectionName,
@@ -70,5 +67,9 @@ contract NWERC721Factory is Ownable {
     function mint(NWERC721 collectionAddress) external {
         NWERC721 collection = NWERC721(collectionAddress);
         collection.safeMint(msg.sender);
+    }
+
+    function getCollectionsCreated() external view returns (address[] memory) {
+        return collectionsCreated;
     }
 }

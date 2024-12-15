@@ -26,13 +26,13 @@ contract NWERC721 is ERC721Enumerable, Ownable {
         string calldata _collectionName,
         string calldata _collectionSymbol,
         string calldata _collectionURI
-    ) public onlyOwner {
+    ) external onlyOwner {
         _name = _collectionName;
         _symbol = _collectionSymbol;
         baseURI = _collectionURI;
     }
 
-    function safeMint(address to) public payable onlyOwner {
+    function safeMint(address to) external payable onlyOwner {
         require(totalSupply() + 1 <= MAX_SUPPLY, "Max supply exceeded");
         //require(msg.value >= PRICE_PER_NFT, "Not enough funds to mint");
         require(

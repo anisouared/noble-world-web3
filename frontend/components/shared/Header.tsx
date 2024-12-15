@@ -2,111 +2,81 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useAccount } from "wagmi";
+import Image from 'next/image'
+import CustomConnectButton from "./CustomConnectButton";
 
-const Logo = () => (
-    <Link href="/" className="flex items-center">
-        <svg
-            width="36"
-            height="36"
-            viewBox="0 0 40 40"
-            className="text-white md:w-[40px] md:h-[40px]"
-        >
-            <g>
-                <path
-                    d="M20 0L37.3205 30H2.67949L20 0Z"
-                    className="fill-white/20"
-                />
-                <path
-                    d="M20 8L31.7128 28H8.28718L20 8Z"
-                    className="fill-white/40"
-                />
-                <path
-                    d="M20 16L26.1051 26H13.8949L20 16Z"
-                    className="fill-white"
-                />
-            </g>
-        </svg>
-    </Link>
-);
 
 const Header = () => {
+    const [activeLink, setActiveLink] = useState('/'); // État pour le lien actif
+
+    const { isConnected, address } = useAccount();
+
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const menuLinkClasses = "text-white hover:text-purple-100 transition-colors relative group font-montserrat text-sm uppercase tracking-wider font-medium px-4";
     const mobileLinkClasses = "block w-full text-white hover:bg-purple-400/20 px-3 py-2 rounded-md transition-colors font-montserrat text-sm uppercase tracking-wider font-medium text-center";
 
-    return (
-        <div className="bg-gradient-to-r from-purple-600 via-purple-500 to-indigo-500 shadow-lg">
-            <div className="max-w-5xl mx-auto px-6">
-                {/* Desktop Menu */}
-                <div className="hidden md:flex items-center justify-center relative py-4">
-                    <div className="absolute left-0">
-                        <Logo />
-                    </div>
-                    <ul className="flex gap-16 items-center">
-                        <li>
-                            <Link href="/" className={menuLinkClasses}>
-                                <span>Home</span>
-                                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
-                            </Link>
-                        </li>
-                        <li>
-                            <Link href="/annonces" className={menuLinkClasses}>
-                                <span>Annonces</span>
-                                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
-                            </Link>
-                        </li>
-                        <li>
-                            <Link href="/marketplace" className={menuLinkClasses}>
-                                <span>Marketplace</span>
-                                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
-                            </Link>
-                        </li>
-                    </ul>
-                </div>
+    
+    const toggleMenu = () => {
+        setIsMenuOpen(!isMenuOpen);
+    };
 
-                {/* Mobile Menu */}
-                <div className="md:hidden py-4">
-                    <div className="flex justify-between items-center">
-                        <Logo />
-                        <button
-                            onClick={() => setIsMenuOpen(!isMenuOpen)}
-                            className="text-white hover:text-purple-100 focus:outline-none"
-                        >
-                            {isMenuOpen ? (
-                                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    return (
+        <>
+            <nav className="border-gray-200 py-2.5 bg-gray-900">
+                <div className="flex flex-wrap items-center justify-between max-w-screen-xl px-4 mx-auto">
+                    <a href="#" className="flex items-center">
+                        <Image
+                            src="/images/nobleworld-logo.png"
+                            width={50}
+                            height={50}
+                            alt="Picture of the author"
+                        />
+                        <span className="self-center text-xl font-semibold whitespace-nowrap text-white pl-1 font-dancing">
+                            Noble World
+                        </span>
+                    </a>
+                    <div className="flex items-center lg:order-2">
+                        <div className="hidden mt-2 mr-4 sm:inline-block">
+                            <span></span>
+                        </div>
+                        {<CustomConnectButton />}
+                        <button data-collapse-toggle="mobile-menu-2" type="button" onClick={toggleMenu} 
+                            className="inline-flex items-center p-2 ml-2 text-sm rounded-lg lg:hidden focus:outline-none focus:ring-2 text-gray-400 hover:bg-gray-700 focus:ring-gray-600"
+                            aria-controls="mobile-menu-2" aria-expanded={isMenuOpen}>
+                                <span className="sr-only">Open main menu</span>
+                                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                    <path fillRule="evenodd"
+                                        d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                                        clipRule="evenodd"></path>
                                 </svg>
-                            ) : (
-                                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                                <svg className="hidden w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                    <path fillRule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clipRule="evenodd"></path>
                                 </svg>
-                            )}
                         </button>
                     </div>
-
-                    <div className={`transition-all duration-300 ease-in-out ${isMenuOpen ? 'max-h-48 opacity-100 mt-4' : 'max-h-0 opacity-0 overflow-hidden'}`}>
-                        <ul className="flex flex-col items-center space-y-2">
-                            <li className="w-full">
-                                <Link href="/" className={mobileLinkClasses} onClick={() => setIsMenuOpen(false)}>
-                                    Home
-                                </Link>
+                    <div className={`items-center justify-between w-full lg:flex lg:w-auto lg:order-1 ${isMenuOpen ? 'block' : 'hidden'}`} id="mobile-menu-2">
+                        <ul className="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
+                            <li>
+                                <Link href="/" className={`${activeLink === '/' ? 'text-white' : 'text-gray-400 hover:text-white'} block py-2 pl-3 pr-4 border-b lg:hover:bg-transparent lg:border-0 lg:p-0 text-gray-400 lg:hover:text-white hover:bg-gray-700 hover:text-white border-gray-700`} onClick={() => setActiveLink('/')}>Home</Link>
                             </li>
-                            <li className="w-full">
-                                <Link href="/annonces" className={mobileLinkClasses} onClick={() => setIsMenuOpen(false)}>
-                                    Annonces
-                                </Link>
+                            <li>
+                                <Link href="/gallery" className={`${activeLink === '/gallery' ? 'text-white' : 'text-gray-400 hover:text-white'} block py-2 pl-3 pr-4 border-b lg:hover:bg-transparent lg:border-0 lg:p-0 text-gray-400 lg:hover:text-white hover:bg-gray-700 hover:text-white border-gray-700 focus:text-white`} onClick={() => setActiveLink('/gallery')}>Gallery</Link>
                             </li>
-                            <li className="w-full">
-                                <Link href="/marketplace" className={mobileLinkClasses} onClick={() => setIsMenuOpen(false)}>
-                                    Marketplace
-                                </Link>
+                            <li>
+                                <Link href="/sales" className={`${activeLink === '/sales' ? 'text-white' : 'text-gray-400 hover:text-white'} block py-2 pl-3 pr-4 border-b lg:hover:bg-transparent lg:border-0 lg:p-0 text-gray-400 lg:hover:text-white hover:bg-gray-700 hover:text-white border-gray-700 focus:text-white`} onClick={() => setActiveLink('/sales')}>Sales</Link>
+                            </li>
+                            <li>
+                                <Link href="/purchases" className={`${activeLink === '/purchases' ? 'text-white' : 'text-gray-400 hover:text-white'} block py-2 pl-3 pr-4 border-b lg:hover:bg-transparent lg:border-0 lg:p-0 text-gray-400 lg:hover:text-white hover:bg-gray-700 hover:text-white border-gray-700 focus:text-white`} onClick={() => setActiveLink('/purchases')}>Purchases</Link>
                             </li>
                         </ul>
                     </div>
                 </div>
-            </div>
-        </div>
+            </nav>
+        </>
     )
 }
 

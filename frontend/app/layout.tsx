@@ -1,8 +1,10 @@
+import CustomRainbowKitProvider from "./CustomRainbowKitProvider"
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Header from "@/components/shared/Header";
 import { Inter, Montserrat } from 'next/font/google'
+import Layout from "@/components/shared/Layout";
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -36,8 +38,21 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${montserrat.variable} antialiased`}
       >
-        <Header />
-        {children}
+        <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet" />
+
+        <CustomRainbowKitProvider>
+          <Layout>
+            <div className="min-h-screen bg-no-repeat bg-right-top" style={{ backgroundImage: "url('/images/hero-shape-2.svg')" }}>
+              <div className="min-h-screen bg-no-repeat bg-left-top" style={{ backgroundImage: "url('/images/hero-shape-1.svg')" }}>
+                <div className="min-h-screen bg-no-repeat bg-left-bottom" style={{ backgroundImage: "url('/images/hero-shape-3.svg')" }}>
+                  <div className="min-h-screen bg-no-repeat bg-right-bottom" style={{ backgroundImage: "url('/images/hero-shape-4.svg')" }}>
+                    {children}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Layout>
+        </CustomRainbowKitProvider>
       </body>
     </html>
   );

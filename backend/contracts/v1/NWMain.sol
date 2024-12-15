@@ -2,13 +2,16 @@
 
 pragma solidity 0.8.20;
 
-import "./NWERC721Factory.sol";
+import "./INWERC721Factory.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
-contract NWMain is NWERC721Factory {
+contract NWMain is Ownable {
     // State Variables
+    address payable public feeAccount;
     uint256 public immutable feePercent; // the fee percentage on transactions
     uint256 public itemCount; // all items of all contracts
+    INWERC721Factory factory;
 
     enum SaleStatus {
         SaleNotStarted,
@@ -59,8 +62,13 @@ contract NWMain is NWERC721Factory {
 
     error NotAuthorized();
 
-    constructor(uint256 _feePercent) NWERC721Factory() {
+    constructor(
+        INWERC721Factory _factory,
+        uint256 _feePercent
+    ) Ownable(msg.sender) {
+        feeAccount = payable(msg.sender);
         feePercent = _feePercent;
+        factory = INWERC721Factory(_factory);
     }
 
     function escrowItem(
@@ -110,12 +118,12 @@ contract NWMain is NWERC721Factory {
         uint256 _priceInEther
     ) external payable {
         require(
-            collectionsCreated.length > 0,
+            getFactoryCollections().length > 0,
             "Collection was not recognized, it is not possible to escrow an item"
         );
         require(_priceInEther > 0, "Price of the item must be specified");
 
-        escrowItem(collectionsCreated[0], _tokenId, _priceInEther);
+        escrowItem(getFactoryCollections()[0], _tokenId, _priceInEther);
     }
 
     function buyItem(uint256 _itemId) external payable {
@@ -133,11 +141,8 @@ contract NWMain is NWERC721Factory {
 
     function validateItem(uint256 _itemId) external payable {
         Item memory item = items[_itemId];
-        require(item.seller == msg.sender, "You are not the item seller");
-        require(
-            item.buyer != address(0),
-            "No buyer intends to purchase the item"
-        );
+        require(item.buyer == msg.sender, "You are not the item buyer");
+        require(item.seller != address(0), "No seller for this item");
         require(
             item.status == SaleStatus.Purchasing,
             "Item has not been repurchased"
@@ -178,6 +183,10 @@ contract NWMain is NWERC721Factory {
         require(received, "Withdraw did not work");
 
         emit WithdrawFees(_amountInWei, block.timestamp);
+    }
+
+    function getFactoryCollections() internal view returns (address[] memory) {
+        return factory.getCollectionsCreated();
     }
 
     fallback() external payable {}
