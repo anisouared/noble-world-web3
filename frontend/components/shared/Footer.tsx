@@ -1,7 +1,7 @@
-import React from 'react'
-import CustomConnectButton from './CustomConnectButton'
-import Link from 'next/link'
-import Image from 'next/image'
+import React from "react";
+import CustomConnectButton from "./CustomConnectButton";
+import Link from "next/link";
+import Image from "next/image";
 
 const Footer = () => {
   return (
@@ -9,15 +9,10 @@ const Footer = () => {
       <div className="max-w-screen-xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div id="left-footer" className="flex flex-col space-y-2 items-center text-center">
-            <Image
-              src="/images/nobleworld-logo.png"
-              alt="Noble World Logo"
-              width={150}
-              height={50}
-              className="mb-4"
-            />
+            <Image src="/images/nobleworld-logo.png" alt="Noble World Logo" width={150} height={50} className="mb-4" />
             <p className="text-gray-400 text-sm">
-              Noble World est une plateforme Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.. 
+              Noble World est une plateforme Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+              tempor incididunt ut labore et dolore magna aliqua..
             </p>
           </div>
 
@@ -26,9 +21,26 @@ const Footer = () => {
             <div>
               <h3 className="text-white font-semibold mb-4">About Us</h3>
               <ul className="space-y-2">
-                <li><Link href="#" className="text-gray-400 hover:text-white transition-colors">Our Story</Link></li>
-                <li><Link href="#" className="text-gray-400 hover:text-white transition-colors">Team</Link></li>
-                <li><Link href="#" className="text-gray-400 hover:text-white transition-colors">Careers</Link></li>
+                <li>
+                  <Link href="/about/features" className="text-gray-400 hover:text-white transition-colors">
+                    Features
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/about/roadmap" className="text-gray-400 hover:text-white transition-colors">
+                    Roadmap
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/about/team" className="text-gray-400 hover:text-white transition-colors">
+                    Team
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/about/contact" className="text-gray-400 hover:text-white transition-colors">
+                    Contact
+                  </Link>
+                </li>
               </ul>
             </div>
 
@@ -36,9 +48,21 @@ const Footer = () => {
             <div>
               <h3 className="text-white font-semibold mb-4">Quick Links</h3>
               <ul className="space-y-2">
-                <li><Link href="#" className="text-gray-400 hover:text-white transition-colors">News</Link></li>
-                <li><Link href="#" className="text-gray-400 hover:text-white transition-colors">Whitepaper</Link></li>
-                <li><Link href="#" className="text-gray-400 hover:text-white transition-colors">Join US</Link></li>
+                <li>
+                  <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                    News
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                    Whitepaper
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                    Join US
+                  </Link>
+                </li>
               </ul>
             </div>
 
@@ -46,9 +70,21 @@ const Footer = () => {
             <div>
               <h3 className="text-white font-semibold mb-4">Legal</h3>
               <ul className="space-y-2">
-                <li><Link href="#" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</Link></li>
-                <li><Link href="#" className="text-gray-400 hover:text-white transition-colors">Terms of Service</Link></li>
-                <li><Link href="#" className="text-gray-400 hover:text-white transition-colors">FAQ</Link></li>
+                <li>
+                  <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                    Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                    Terms of Service
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                    FAQ
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>
@@ -78,7 +114,7 @@ const Footer = () => {
         </div>
       </div>
     </footer>
-  )
-}
+  );
+};
 
-export default Footer
+export default Footer;

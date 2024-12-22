@@ -77,6 +77,10 @@ body.vsc-initialized {
     @apply bg-gray-100 text-foreground;
   }
   html {
-    @apply scroll-smooth ;
+    @apply scroll-smooth;
   }
+}
+
+.nw-title-shadow-purple {
+  text-shadow: 2px 4px 4px rgba(128, 0, 128, 0.5); /* Ajustez les valeurs selon vos besoins */
 }
