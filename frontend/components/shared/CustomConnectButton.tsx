@@ -107,7 +107,7 @@ const CustomConnectButton = () => {
                           </a>
                         </li>
                         <li>
-                          <a href="/products" className="block px-4 py-2 hover:bg-gray-600 hover:text-white">
+                          <a href="/nfts" className="block px-4 py-2 hover:bg-gray-600 hover:text-white">
                             My NFTs (Products)
                           </a>
                         </li>

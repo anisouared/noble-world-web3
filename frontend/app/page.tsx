@@ -5,38 +5,33 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import GalleryCard from "@/components/shared/GalleryCard";
+import { GalleryCardType } from "@/types/GalleryCardType";
 
 const Gallery = () => {
-  // Données simulées pour les cards (48 items pour 3 pages)
-  const nfts = Array.from({ length: 48 }, (_, i) => ({
+  const products: Array<GalleryCardType> = Array.from({ length: 48 }, (_, i) => ({
     id: i + 1,
     title: `Sac CHANEL Model ZP${i + 1}`,
-    description: "Digital collectible",
-    price: `${(Math.random() * 2).toFixed(2)} ETH`,
-    image: "/images/product1.png",
+    description: "Urna et pharetra aliquam vestibulum morbi blandit cursus risus.",
+    priceInWei: Math.floor(Math.random() * 1100000000000),
+    imagePath: "/images/product1.png",
     category: ["Art", "Collectibles", "Gaming", "Luxe"][Math.floor(Math.random() * 4)],
+    nftCollection: "0x3337c58ed8e06197f3E8F7FD1fF425d66c8594f0",
+    tokenId: Math.floor(Math.random() * 50),
+    brand: ["GUCCI", "Chanel", "Louis Vuitton", "Hermès"][Math.floor(Math.random() * 4)],
+    serialNumber: Math.floor(Math.random() * 6456345345).toString(),
+    seller: "0x50f30eC99cd8231FB5F3C6096087aa6F49906528",
   }));
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 16;
-  const totalPages = Math.ceil(nfts.length / itemsPerPage);
+  const totalPages = Math.ceil(products.length / itemsPerPage);
 
   // Obtenir les NFTs pour la page actuelle
   const getCurrentPageItems = () => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    return nfts.slice(startIndex, endIndex);
+    return products.slice(startIndex, endIndex);
   };
 
   return (
@@ -124,90 +119,8 @@ const Gallery = () => {
 
         {/* Grille de cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 place-items-center sm:place-items-start">
-          {getCurrentPageItems().map((nft) => (
-            <Dialog>
-              <DialogTrigger asChild>
-                <Card
-                  key={nft.id}
-                  className="hover:shadow-[0_1px_10px_rgba(0,0,0,0.7)] transition-shadow w-full sm:w-auto overflow-hidden mb-2"
-                >
-                  <CardHeader className="p-4 pb-3">
-                    <div className="relative aspect-square rounded-lg overflow-hidden mb-2">
-                      <img src={nft.image} alt={nft.title} className="object-cover w-full h-full" />
-                    </div>
-
-                    <Badge
-                      variant="secondary"
-                      className="bg-purple-200 hover:bg-purple-200 text-xs flex justify-center items-center"
-                    >
-                      {nft.category}
-                    </Badge>
-                    <div className="flex justify-between items-center">
-                      <CardTitle className="text-base">{nft.title}</CardTitle>
-                    </div>
-                    <CardDescription className="text-xs mt-1">Marque : CHANEL</CardDescription>
-                    <CardDescription className="text-xs mt-1">ID: HER-B35-2024-001</CardDescription>
-                  </CardHeader>
-                  <div className="border-t border-gray-300 pb-2"></div>
-                  <CardContent className="p-4 pt-0 pb-3">
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-muted-foreground font-bold">Price</span>
-                      <span className="font-semibold">{nft.price}</span>
-                    </div>
-                  </CardContent>
-                </Card>
-              </DialogTrigger>
-              <DialogContent className="p-6 flex flex-col md:max-w-[800px]">
-                <DialogHeader className="flex justify-between items-center">
-                  <DialogTitle>Sac en CUIR marron</DialogTitle>
-                  <DialogDescription className="pr-3 pl-3 text-center">
-                    Pretium lectus quam id leo. Urna et pharetra aliquam vestibulum morbi blandit cursus risus.
-                  </DialogDescription>
-                </DialogHeader>
-                <div id="contentDialog" className="flex flex-col md:flex-row mt-3">
-                  <div className="w-full md:w-2/5 p-1">
-                    <div className="flex justify-center rounded-lg aspect-square relative overflow-hidden mb-1">
-                      <img src={nft.image} alt={nft.title} className="object-cover w-full h-full" />
-                    </div>
-                  </div>
-                  <div className="w-full md:w-3/5 pt-1 bg-white rounded-lg md:pl-4">
-                    <Badge
-                      variant="secondary"
-                      className="bg-purple-200 hover:bg-purple-200 text-lg flex justify-center items-center mb-4"
-                    >
-                      {nft.category}
-                    </Badge>
-                    <dl className="text-gray-900 pb-1">
-                      <div className="flex justify-between py-1 border-b">
-                        <dt className="text-gray-500 font-medium pr-6">Serial number</dt>
-                        <dd className="text-md font-semibold">AZE12543ZE</dd>
-                      </div>
-                      <div className="flex justify-between py-1 border-b">
-                        <dt className="text-gray-500 font-medium pr-6">Marque</dt>
-                        <dd className="text-md font-semibold truncate">CHANEL</dd>
-                      </div>
-                      <div className="flex justify-between py-1 border-b">
-                        <dt className="text-gray-500 font-medium pr-6">Collection</dt>
-                        <dd className="text-md font-semibold truncate">0x3337c58ed8e06197f3E8F7FD1fF425d66c8594f0</dd>
-                      </div>
-                      <div className="flex justify-between py-1 border-b">
-                        <dt className="text-gray-500 font-medium pr-6">Token Id</dt>
-                        <dd className="text-md font-semibold">#5</dd>
-                      </div>
-                      <div className="flex justify-between py-1">
-                        <dt className="text-gray-500 font-medium pr-6">Prix</dt>
-                        <dd className="text-md font-semibold">1.05 ETH</dd>
-                      </div>
-                    </dl>
-                    <div className="grid gap-4 mt-10">
-                      <Button type="submit" className="bg-blue-400 hover:bg-blue-500 mt-auto">
-                        BUY
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
+          {getCurrentPageItems().map((item) => (
+            <GalleryCard product={item} key={item.id} />
           ))}
         </div>
 

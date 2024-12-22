@@ -1,4 +1,5 @@
-type galleryCardType = {
+export type GalleryCardType = {
+  id: number;
   serialNumber: string;
   brand: string;
   nftCollection: string;
