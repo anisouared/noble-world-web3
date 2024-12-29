@@ -1,5 +1,6 @@
 import { SaleCardType } from "../SaleCardType";
+import { Item } from "./Item";
 
 export type SaleCardPropsType = {
-  sale: SaleCardType;
+  productSold: Item;
 };

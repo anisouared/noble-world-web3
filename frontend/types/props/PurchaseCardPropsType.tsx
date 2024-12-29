@@ -1,5 +1,6 @@
 import { PurchaseCardType } from "../PurchaseCardType";
+import { Item } from "./Item";
 
 export type PurchaseCardPropsType = {
-  purchase: PurchaseCardType;
+  productPurchased: Item;
 };

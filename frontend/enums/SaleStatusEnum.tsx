@@ -3,7 +3,6 @@ export enum SaleStatusEnum {
   Escrowed,
   Purchasing,
   Purchased,
-  SellerCancelled,
-  BuyerCancelled,
+  Cancellation,
   SaleTimeout,
 }

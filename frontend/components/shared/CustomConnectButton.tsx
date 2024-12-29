@@ -1,20 +1,25 @@
-import React, { useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { disconnect } from "@wagmi/core";
-import { useDisconnect } from "wagmi";
+import { useAccount, useDisconnect } from "wagmi";
 
 const CustomConnectButton = () => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // État pour gérer l'ouverture du dropdown
+  const { isConnected } = useAccount();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { disconnect } = useDisconnect();
+
+  const handleDiconnection = () => {
+    disconnect();
+    setIsDropdownOpen(false);
+  };
 
   return (
     <ConnectButton.Custom>
       {({ account, chain, openAccountModal, openChainModal, openConnectModal, authenticationStatus, mounted }) => {
-        // Note: If your app doesn't use authentication, you
-        // can remove all 'authenticationStatus' checks
         const ready = mounted && authenticationStatus !== "loading";
         const connected =
           ready && account && chain && (!authenticationStatus || authenticationStatus === "authenticated");
+
         return (
           <div
             {...(!ready && {
@@ -98,30 +103,30 @@ const CustomConnectButton = () => {
                       />
                     </svg>
                   </button>
-                  {isDropdownOpen && ( // Affiche le dropdown si l'état est ouvert
-                    <div className="absolute z-50 divide-y rounded-lg shadow w-44 mt-12 ml-11 bg-gray-700 divide-gray-600">
-                      <ul className="py-2 text-sm text-gray-200" aria-labelledby="dropdownDelayButton">
-                        <li onClick={openAccountModal}>
-                          <a href="#" className="block px-4 py-2 hover:bg-gray-600 hover:text-white">
-                            Account
-                          </a>
-                        </li>
-                        <li>
-                          <a href="/nfts" className="block px-4 py-2 hover:bg-gray-600 hover:text-white">
-                            My NFTs (Products)
-                          </a>
-                        </li>
-                        <li onClick={() => disconnect()}>
-                          <a href="#" className="block px-4 py-2 hover:bg-gray-600 hover:text-white">
-                            Logout
-                          </a>
-                        </li>
-                      </ul>
-                    </div>
-                  )}
                 </div>
               );
             })()}
+            {isDropdownOpen && (
+              <div className="absolute z-50 divide-y rounded-lg shadow w-44 bg-gray-700 divide-gray-600 ml-16 mt-1">
+                <ul className="py-2 text-sm text-gray-200" aria-labelledby="dropdownDelayButton">
+                  <li onClick={openAccountModal}>
+                    <a href="#" className="block px-4 py-2 hover:bg-gray-600 hover:text-white">
+                      Account
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/nfts" className="block px-4 py-2 hover:bg-gray-600 hover:text-white">
+                      My NFTs (Products)
+                    </a>
+                  </li>
+                  <li onClick={handleDiconnection}>
+                    <a href="#" className="block px-4 py-2 hover:bg-gray-600 hover:text-white">
+                      Logout
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            )}
           </div>
         );
       }}

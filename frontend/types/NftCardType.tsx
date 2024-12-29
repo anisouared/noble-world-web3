@@ -1,11 +1,13 @@
+import { Address } from "abitype";
+
 export type NftCardType = {
-  id: number;
-  serialNumber: string;
-  brand: string;
-  nftCollection: string;
+  id: number | undefined;
+  serialNumber: string | undefined;
+  brand: string | undefined;
+  nftCollection: Address;
   tokenId: number;
-  productTitle: string;
-  productDescription: string;
-  imagePath: string;
-  category: string;
+  productTitle: string | undefined;
+  productDescription: string | undefined;
+  imagePath: string | undefined;
+  category: string | undefined;
 };

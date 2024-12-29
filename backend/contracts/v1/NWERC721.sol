@@ -10,7 +10,7 @@ contract NWERC721 is ERC721Enumerable, Ownable {
     uint256 private _nextTokenId;
     uint256 private constant MAX_SUPPLY = 12;
     //uint256 private constant PRICE_PER_NFT = 0.000002 ether;
-    uint256 private constant AMOUNT_NFT_PER_WALLET = 3;
+    uint256 private constant AMOUNT_NFT_PER_WALLET = 10;
 
     string public baseURI;
 

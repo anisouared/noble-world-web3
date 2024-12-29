@@ -1,5 +1,7 @@
 import { GalleryCardType } from "../GalleryCardType";
+import { Item } from "./Item";
 
 export type GalleryCardPropsType = {
-  product: GalleryCardType;
+  product: Item;
+  refetchAllItemsForSale: () => Promise<void>;
 };
