@@ -55,7 +55,7 @@ const GalleryCard = (props: GalleryCardPropsType) => {
         setItemIsPurchased(true);
       }
     } catch (error) {
-      console.error("Error while buying the item", error);
+      console.error("Error when buying the item", error);
     }
   };
 
@@ -86,11 +86,14 @@ const GalleryCard = (props: GalleryCardPropsType) => {
             </Badge>
 
             <div className="flex justify-between items-center">
-              <CardTitle className="text-base" title={product.productTitle}>
+              <CardTitle
+                className="truncate inline-block max-w-[220px] overflow-hidden whitespace-nowrap text-ellipsis pb-1"
+                title={product.productTitle}
+              >
                 {product.productTitle}
               </CardTitle>
             </div>
-
+            <CardDescription className="text-xs mt-1">Item Id : #{product.itemId?.toString()}</CardDescription>
             <CardDescription className="text-xs mt-1">Brand : {product.brand}</CardDescription>
             <CardDescription className="text-xs mt-1">Serial : {product.serialNumber}</CardDescription>
           </CardHeader>

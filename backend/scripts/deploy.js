@@ -3,18 +3,18 @@ async function main() {
   console.log("Deploying contracts with the account : ", deployer.address);
 
   // Deploy contracts here :
-  // const NWERC721FactoryContainer = await ethers.getContractFactory("NWERC721Factory");
-  // const NWERC721Factory = await NWERC721FactoryContainer.deploy();
-  // NWERC721Factory.waitForDeployment();
-  // console.log("NWERC721Factory contract address :", NWERC721Factory.target);
+  const NWERC721FactoryContainer = await ethers.getContractFactory("NWERC721Factory");
+  const NWERC721Factory = await NWERC721FactoryContainer.deploy();
+  NWERC721Factory.waitForDeployment(10);
+  console.log("NWERC721Factory contract address :", NWERC721Factory.target);
 
   const NWMainContainer = await ethers.getContractFactory("NWMain");
-  //const NWMain = await NWMainContainer.deploy(NWERC721Factory.target, 10);
-  const NWMain = await NWMainContainer.deploy("0x5FbDB2315678afecb367f032d93F642f64180aa3", 10);
+  const NWMain = await NWMainContainer.deploy(NWERC721Factory.target, 10);
+  //const NWMain = await NWMainContainer.deploy("0x5FbDB2315678afecb367f032d93F642f64180aa3", 10);
 
   console.log("NWMain contract address :", NWMain.target);
 
-  //modifyFrontendFiles(NWERC721Factory, "NWERC721Factory");
+  modifyFrontendFiles(NWERC721Factory, "NWERC721Factory");
   modifyFrontendFiles(NWMain, "NWMain");
 }
 

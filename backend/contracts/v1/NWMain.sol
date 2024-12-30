@@ -9,8 +9,7 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 contract NWMain is Ownable {
     // State Variables
     address payable public feeAccount;
-    uint256 public feePercent; // the fee percentage on transactions
-    //uint256 public itemCount; // all items of all contracts
+    uint256 public feePercent;
     INWERC721Factory factory;
 
     enum SaleStatus {
@@ -179,7 +178,6 @@ contract NWMain is Ownable {
     }
 
     function buyItem(uint256 _itemId) external payable {
-        //Item memory item = items[_itemId];
         Item memory item = getItem(_itemId);
         require(msg.value >= item.priceInWei, "Not enough funds provided");
         require(item.status == SaleStatus.Escrowed, "Item not escrowed");
@@ -187,19 +185,14 @@ contract NWMain is Ownable {
         item.buyer = payable(msg.sender);
         item.status = SaleStatus.Purchasing;
 
-        //items[_itemId] = item;
         items[item.itemId] = item;
 
-        //itemsIdsForPurchase[_msgSender()].push(_itemId);
         itemsIdsForPurchase[_msgSender()].push(item.itemId);
 
-
-        //emit PaidItems(_itemId, msg.sender, block.timestamp);
         emit PaidItems(item.itemId, msg.sender, block.timestamp);
     }
 
     function validateItem(uint256 _itemId) external payable {
-        //Item memory item = items[_itemId];
         Item memory item = getItem(_itemId);
         require(item.buyer == msg.sender, "You are not the item buyer");
         require(item.seller != address(0), "No seller for this item");
@@ -215,7 +208,6 @@ contract NWMain is Ownable {
         );
 
         item.status = SaleStatus.Purchased;
-        //items[_itemId] = item;
         items[item.itemId] = item;
 
         uint256 amountOfFees = (item.priceInWei * feePercent) / 100;
@@ -228,7 +220,6 @@ contract NWMain is Ownable {
         require(feesReceived, "Withdraw did not work");
 
         emit SoldItems(
-            //_itemId,
             item.itemId,
             item.seller,
             item.buyer,
@@ -239,7 +230,6 @@ contract NWMain is Ownable {
     }
 
     function cancelSale(uint256 _itemId) external payable {
-        //Item memory item = items[_itemId];
         Item memory item = getItem(_itemId);
 
         require(_msgSender() == item.seller || _msgSender() == item.buyer, "Must be a buyer or seller of the item");
@@ -271,10 +261,8 @@ contract NWMain is Ownable {
            revert("Unable to cancel sale");
         }
 
-        //items[_itemId] = item;
         items[item.itemId] = item;
 
-        //emit SaleConcellation(_itemId, block.timestamp);
         emit SaleConcellation(item.itemId, block.timestamp);
     }
 

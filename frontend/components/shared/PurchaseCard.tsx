@@ -103,16 +103,16 @@ const PurchaseCard = (props: PurchaseCardPropsType) => {
     }
   };
 
-  useEffect(() => {
-    if (
-      productPurchased.status == SaleStatusEnum.Cancellation ||
-      productPurchased.status == SaleStatusEnum.SaleTimeout ||
-      productPurchased.status == SaleStatusEnum.Purchased ||
-      productPurchased.buyerRequestsCancellation
-    ) {
-      setIsSaleValidatedOrCanceled(true);
-    }
-  }, [productPurchased]);
+  // useEffect(() => {
+  //   if (
+  //     productPurchased.status == SaleStatusEnum.Cancellation ||
+  //     productPurchased.status == SaleStatusEnum.SaleTimeout ||
+  //     productPurchased.status == SaleStatusEnum.Purchased ||
+  //     productPurchased.buyerRequestsCancellation
+  //   ) {
+  //     setIsSaleValidatedOrCanceled(true);
+  //   }
+  // }, [productPurchased]);
 
   return (
     <Card
@@ -124,28 +124,28 @@ const PurchaseCard = (props: PurchaseCardPropsType) => {
           getStatusAndBackgroundColor(productPurchased?.status)[1]
         } shadow-[0_1px_10px_rgba(0,0,0,0.7)]`}
       >
-        {getStatusAndBackgroundColor(productPurchased?.status)[0]}
+        #{productPurchased.itemId?.toString()} - {getStatusAndBackgroundColor(productPurchased?.status)[0]}
       </div>
 
-      <CardContent className="flex flex-grow p-1 pl-3">
-        <div className="p-2 pb-6 pt-6 w-1/3 hidden md:block">
+      <CardContent className="p-4 pb-3 flex justify-between items-stretch">
+        <div className="relative aspect-square rounded-lg overflow-hidden flex-grow">
           <img
             src={productPurchased.imagePath}
             alt={productPurchased.productTitle}
-            className="mt-1 w-full h-full object-cover rounded-2xl hidden md:block"
+            className="object-cover h-full w-full p-1 rounded-xl"
           />
         </div>
 
-        <div className="flex flex-col justify-between pt-1 pb-5 pr-5 pl-4 w-full md:w-2/3">
+        <div className="flex flex-col justify-between pt-1 pb-1 pr-5 pl-4 w-full md:w-2/3 flex-grow">
           <div className="w-full">
-            <h2 className="text-lg font-semibold text-center">{productPurchased.productTitle}</h2>
+            <h2 className="text-lg font-semibold text-center ">{productPurchased.productTitle}</h2>
             <h3 className="text-gray-600 font-semibold text-center">{productPurchased.productDescription}</h3>
           </div>
           <div className="w-full pt-1 pb-1 p-3 bg-white rounded-lg shadow-md mb-3 mt-3 shadow-[0_0_4px_rgba(0,0,0,0.7)]">
             <dl className="text-gray-900">
               <div className="flex justify-between py-1 border-b">
-                <dt className="text-gray-500 font-medium pr-6">Price (Wei)</dt>
-                <dd className="text-md font-semibold">{productPurchased.priceInWei}</dd>
+                <dt className="text-gray-500 font-medium pr-6 truncate">Price (Wei)</dt>
+                <dd className="text-md font-semibold truncate truncate">{productPurchased.priceInWei}</dd>
               </div>
               <div className="flex justify-between py-1 border-b">
                 <dt className="text-gray-500 font-medium pr-6">Collection</dt>
@@ -153,11 +153,11 @@ const PurchaseCard = (props: PurchaseCardPropsType) => {
               </div>
               <div className="flex justify-between py-1 border-b">
                 <dt className="text-gray-500 font-medium pr-6">Token Id</dt>
-                <dd className="text-md font-semibold">#{productPurchased.tokenId}</dd>
+                <dd className="text-md font-semibold truncate">#{productPurchased.tokenId}</dd>
               </div>
               <div className="flex justify-between py-1 border-b">
-                <dt className="text-gray-500 font-medium pr-6">Purchase date</dt>
-                <dd className="text-md font-semibold">{productPurchased.timestamp}</dd>
+                <dt className="text-gray-500 font-medium pr-6 truncate">Purchase date</dt>
+                <dd className="text-md font-semibold truncate">{productPurchased.timestamp}</dd>
               </div>
               <div className="flex justify-between py-1">
                 <dt className="text-gray-500 font-medium pr-6">Seller</dt>
@@ -165,18 +165,18 @@ const PurchaseCard = (props: PurchaseCardPropsType) => {
               </div>
             </dl>
           </div>
-          <div className="flex flex-col justify-between w-full h-full">
+          <div className="flex flex-col justify-between w-full h-full mt-2">
             <Button
               className="bg-red-400 hover:bg-red-500 mt-auto mb-2 border-transparent"
               onClick={handleCancelSaleClick}
-              disabled={!!isSaleValidatedOrCanceled}
+              //disabled={!!isSaleValidatedOrCanceled}
             >
               CANCEL SALE
             </Button>
             <Button
               className="bg-green-400 hover:bg-green-500 mt-auto border-transparent"
               onClick={handleValidateItemClick}
-              disabled={!!isSaleValidatedOrCanceled}
+              //disabled={!!isSaleValidatedOrCanceled}
             >
               VALIDATE
             </Button>

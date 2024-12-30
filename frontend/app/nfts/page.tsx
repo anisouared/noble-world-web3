@@ -140,7 +140,7 @@ const Nfts = () => {
       const mintedNftsLogs = await viemPublicClient.getLogs({
         address: collectionAddress,
         event: parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"),
-        fromBlock: BigInt(0),
+        fromBlock: BigInt(3039035),
         toBlock: "latest",
       });
 

@@ -129,7 +129,7 @@ const Gallery = () => {
         event: parseAbiItem(
           "event EscrowedItems(uint256 indexed itemId, address collection, uint256 indexed tokenId, uint256 priceInWei, address indexed seller, uint timestamp)"
         ),
-        fromBlock: BigInt(0),
+        fromBlock: BigInt(3039035),
         toBlock: "latest",
       });
 
@@ -160,7 +160,7 @@ const Gallery = () => {
       const paidItemsLogs = await viemPublicClient.getLogs({
         address: NWMainContract.address as Address,
         event: parseAbiItem("event PaidItems(uint256 indexed itemId, address indexed buyer, uint timestamp)"),
-        fromBlock: BigInt(0),
+        fromBlock: BigInt(3039035),
         toBlock: "latest",
       });
 
@@ -170,7 +170,7 @@ const Gallery = () => {
       const canceledSalesLogs = await viemPublicClient.getLogs({
         address: NWMainContract.address as Address,
         event: parseAbiItem("event SaleConcellation(uint256 itemId, uint timestamp)"),
-        fromBlock: BigInt(0),
+        fromBlock: BigInt(3039035),
         toBlock: "latest",
       });
 
@@ -237,17 +237,25 @@ const Gallery = () => {
     </div>
   );
 
-  if (
-    !itemsWithTokensJsonsResults.some((item) => item.data) ||
-    itemsWithTokensJsonsResults.some((item) => item.isLoading)
-  ) {
+  if (itemsWithTokensJsonsResults.some((item) => item.isLoading)) {
     return (
       <>
         {dialogContentToShow}
         <NWLoader />
       </>
     );
+  } else if (!itemsWithTokensJsonsResults.some((item) => item.data)) {
+    return (
+      <>
+        {dialogContentToShow}
+        <div className="flex flex-col items-center justify-center md:pt-20">
+          <p className="text-xl font-semibold text-gray-700">There are no items available for sale.</p>
+          <p className="text-lg text-gray-500">Please check back later.</p>
+        </div>
+      </>
+    );
   }
+
   return (
     <>
       {dialogContentToShow}
@@ -305,7 +313,7 @@ const Gallery = () => {
         </div>
 
         {/* Grille de cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 place-items-center sm:place-items-start">
+        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 place-items-center sm:place-items-start">
           {itemsWithTokensJsonsResults.slice(startIndex, endIndex)?.map((item, index) => (
             <GalleryCard key={index} product={item.data} refetchAllItemsForSale={getAllItemsForSale} />
           ))}

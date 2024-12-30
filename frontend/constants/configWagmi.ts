@@ -6,6 +6,6 @@ export const configWagmi = createConfig({
   transports: {
     [hardhat.id]: http(),
     [sepolia.id]: http("https://sepolia.infura.io/v3/be2a060702b04189bd889de51ec14216"),
-    [holesky.id]: http(),
+    [holesky.id]: http("https://eth-holesky.g.alchemy.com/v2/zctdXCCxHeRKgJJAHHpB8Poap5Fd3gX5"),
   },
 });

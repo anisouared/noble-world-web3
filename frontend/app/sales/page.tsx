@@ -24,22 +24,22 @@ const Sales = () => {
   const { address, isConnected } = useAccount();
   const [itemsForSale, setItemsForSale] = useState<Item[]>([]);
 
-  const sales: Array<SaleCardType> = Array.from({ length: 8 }, (_, i) => ({
-    id: i + 1,
-    serialNumber: Math.floor(Math.random() * 6456345345).toString(),
-    brand: ["GUCCI", "Chanel", "Louis Vuitton", "Hermès"][Math.floor(Math.random() * 4)],
-    nftCollection: "0x3337c58ed8e06197f3E8F7FD1fF425d66c8594f0",
-    tokenId: Math.floor(Math.random() * 50),
-    SaleDate: new Date(),
-    productTitle: `Sac CHANEL Model ZP${i + 1}`,
-    productDescription: "Urna et pharetra aliquam vestibulum morbi blandit cursus risus.",
-    productPriceInWei: Math.floor(Math.random() * 1100000000000),
-    imagePath: "/images/product1.png",
-    category: ["Art", "Collectibles", "Gaming", "Luxe"][Math.floor(Math.random() * 4)],
-    status: Math.random() > 0.1 ? SaleStatusEnum.Escrowed : SaleStatusEnum.SellerCancelled,
-    seller: "0x50f30eC99cd8231FB5F3C6096087aa6F49906528",
-    buyer: undefined,
-  }));
+  // const sales: Array<SaleCardType> = Array.from({ length: 8 }, (_, i) => ({
+  //   id: i + 1,
+  //   serialNumber: Math.floor(Math.random() * 6456345345).toString(),
+  //   brand: ["GUCCI", "Chanel", "Louis Vuitton", "Hermès"][Math.floor(Math.random() * 4)],
+  //   nftCollection: "0x3337c58ed8e06197f3E8F7FD1fF425d66c8594f0",
+  //   tokenId: Math.floor(Math.random() * 50),
+  //   SaleDate: new Date(),
+  //   productTitle: `Sac CHANEL Model ZP${i + 1}`,
+  //   productDescription: "Urna et pharetra aliquam vestibulum morbi blandit cursus risus.",
+  //   productPriceInWei: Math.floor(Math.random() * 1100000000000),
+  //   imagePath: "/images/product1.png",
+  //   category: ["Art", "Collectibles", "Gaming", "Luxe"][Math.floor(Math.random() * 4)],
+  //   status: Math.random() > 0.1 ? SaleStatusEnum.Escrowed : SaleStatusEnum.SellerCancelled,
+  //   seller: "0x50f30eC99cd8231FB5F3C6096087aa6F49906528",
+  //   buyer: undefined,
+  // }));
 
   const fetchTokenURIsResults = useQueries({
     queries: itemsForSale.map((item) => ({
