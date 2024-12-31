@@ -161,7 +161,7 @@ const Nfts = () => {
                               category: nft.data.responseJson.productCategory,
                               tokenId: nft.data.tokenId,
                               brand: nft.data.responseJson.brand,
-                              nftCollection: collectionAddress[0],
+                              nftCollection: collectionAddress[0] as Address,
                               productTitle: nft.data.responseJson.productName,
                               serialNumber: nft.data.responseJson.serialNumber,
                               productDescription: nft.data.responseJson.productDescription,
