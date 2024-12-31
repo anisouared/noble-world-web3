@@ -17,12 +17,14 @@ import NWMainContract from "@/constants/contractsData/NWMain-address.json";
 import NWMainData from "@/constants/contractsData/NWMain.json";
 import { waitForTransactionReceipt, writeContract } from "@wagmi/core";
 import { Address } from "viem";
-import ItemPurchased from "./ItemPurchased";
+import ItemPurchasing from "./ItemPurchasing";
+import NWLoader from "./NWLoader";
 
 const GalleryCard = (props: GalleryCardPropsType) => {
   const { product, refetchAllItemsForSale } = props;
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [itemIsPurchased, setItemIsPurchased] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const buyItem = async () => {
     console.log(`start buying itemId ${product.itemId} and tokenId ${product.tokenId}`);
@@ -48,29 +50,31 @@ const GalleryCard = (props: GalleryCardPropsType) => {
   const handleBuyClick = async () => {
     try {
       console.log("buyyyy");
+      setLoading(true);
+
       const buyItemTransactionReceipt = await buyItem();
 
       if (buyItemTransactionReceipt) {
         console.log("buyItemTransactionReceipt : " + buyItemTransactionReceipt);
+
+        await refetchAllItemsForSale();
+        setLoading(false);
         setItemIsPurchased(true);
       }
     } catch (error) {
       console.error("Error when buying the item", error);
+      setLoading(false);
     }
   };
 
-  const handleOnCloseDialog = async (open: boolean) => {
-    if (!open) {
-      console.log("refetchhhhhhhhhh");
-      await refetchAllItemsForSale();
-    }
+  // const handleOnCloseDialog = async (open: boolean) => {
+  //   setOpenDialog(open);
+  // };
 
-    setOpenDialog(open);
-  };
-
-  console.log("productttt : " + product);
+  //console.log("productttt : " + product);
   return (
-    <Dialog open={openDialog} onOpenChange={handleOnCloseDialog}>
+    <Dialog //open={openDialog} onOpenChange={handleOnCloseDialog}
+    >
       <DialogTrigger asChild>
         <Card className="hover:shadow-[0_1px_10px_rgba(0,0,0,0.7)] transition-shadow w-full sm:w-auto overflow-hidden mb-2">
           <CardHeader className="p-4 pb-3 ">
@@ -111,8 +115,12 @@ const GalleryCard = (props: GalleryCardPropsType) => {
           <DialogTitle>{product.productTitle}</DialogTitle>
           <DialogDescription className="pr-3 pl-3 text-center">{product.productDescription}</DialogDescription>
         </DialogHeader>
-        {itemIsPurchased ? (
-          <ItemPurchased itemId={product.itemId} tokenId={product.tokenId} />
+        {itemIsPurchased || loading ? (
+          loading ? (
+            <NWLoader />
+          ) : (
+            <ItemPurchasing itemId={product.itemId} tokenId={product.tokenId} />
+          )
         ) : (
           <div id="contentDialog" className="flex flex-col md:flex-row mt-3">
             <div className="w-full md:w-2/5 p-1">
@@ -120,46 +128,44 @@ const GalleryCard = (props: GalleryCardPropsType) => {
                 <img src={product.imagePath} alt={product.productTitle} className="object-cover w-full h-full" />
               </div>
             </div>
-            {
-              <div className="w-full md:w-3/5 pt-1 bg-white rounded-lg md:pl-4">
-                <Badge
-                  variant="secondary"
-                  className="bg-purple-200 hover:bg-purple-200 text-lg flex justify-center items-center mb-4"
-                >
-                  {product.category}
-                </Badge>
-                <dl className="text-gray-900 pb-1">
-                  <div className="flex justify-between py-1 border-b">
-                    <dt className="text-gray-500 font-medium pr-6">Serial number</dt>
-                    <dd className="text-md font-semibold">{product.serialNumber}</dd>
-                  </div>
-                  <div className="flex justify-between py-1 border-b">
-                    <dt className="text-gray-500 font-medium pr-6">Brand</dt>
-                    <dd className="text-md font-semibold truncate">{product.brand}</dd>
-                  </div>
-                  <div className="flex justify-between py-1 border-b">
-                    <dt className="text-gray-500 font-medium pr-6">Collection</dt>
-                    <dd className="text-md font-semibold truncate">{product.nftCollection}</dd>
-                  </div>
-                  <div className="flex justify-between py-1 border-b">
-                    <dt className="text-gray-500 font-medium pr-6">Token Id</dt>
-                    <dd className="text-md font-semibold">#{product.tokenId?.toString()}</dd>
-                  </div>
-                  <div className="flex justify-between py-1">
-                    <dt className="text-gray-500 font-medium pr-6">Price (Wei)</dt>
-                    <dd className="text-md font-semibold">{product.priceInWei?.toString()}</dd>
-                  </div>
-                </dl>
-                <div className="grid gap-4 mt-10">
-                  <Button
-                    onClick={handleBuyClick}
-                    className="bg-blue-400 hover:bg-blue-500 mt-auto border-transparent focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:border-transparent"
-                  >
-                    BUY
-                  </Button>
+            <div className="w-full md:w-3/5 pt-1 bg-white rounded-lg md:pl-4">
+              <Badge
+                variant="secondary"
+                className="bg-purple-200 hover:bg-purple-200 text-lg flex justify-center items-center mb-4"
+              >
+                {product.category}
+              </Badge>
+              <dl className="text-gray-900 pb-1">
+                <div className="flex justify-between py-1 border-b">
+                  <dt className="text-gray-500 font-medium pr-6">Serial number</dt>
+                  <dd className="text-md font-semibold">{product.serialNumber}</dd>
                 </div>
+                <div className="flex justify-between py-1 border-b">
+                  <dt className="text-gray-500 font-medium pr-6">Brand</dt>
+                  <dd className="text-md font-semibold truncate">{product.brand}</dd>
+                </div>
+                <div className="flex justify-between py-1 border-b">
+                  <dt className="text-gray-500 font-medium pr-6">Collection</dt>
+                  <dd className="text-md font-semibold truncate">{product.nftCollection}</dd>
+                </div>
+                <div className="flex justify-between py-1 border-b">
+                  <dt className="text-gray-500 font-medium pr-6">Token Id</dt>
+                  <dd className="text-md font-semibold">#{product.tokenId?.toString()}</dd>
+                </div>
+                <div className="flex justify-between py-1">
+                  <dt className="text-gray-500 font-medium pr-6">Price (Wei)</dt>
+                  <dd className="text-md font-semibold">{product.priceInWei?.toString()}</dd>
+                </div>
+              </dl>
+              <div className="grid gap-4 mt-10">
+                <Button
+                  onClick={handleBuyClick}
+                  className="bg-blue-400 hover:bg-blue-500 mt-auto border-transparent focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:border-transparent"
+                >
+                  BUY
+                </Button>
               </div>
-            }
+            </div>
           </div>
         )}
       </DialogContent>

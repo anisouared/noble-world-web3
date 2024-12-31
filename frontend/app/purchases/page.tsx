@@ -23,33 +23,46 @@ const Purchases = () => {
   const { address, isConnected } = useAccount();
   const [itemsForPurchase, setItemsForPurchase] = useState<Item[]>([]);
 
-  // const purchases: Array<PurchaseCardType> = Array.from({ length: 8 }, (_, i) => ({
-  //   id: i + 1,
-  //   serialNumber: Math.floor(Math.random() * 6456345345).toString(),
-  //   brand: ["GUCCI", "Chanel", "Louis Vuitton", "Hermès"][Math.floor(Math.random() * 4)],
-  //   nftCollection: "0x3337c58ed8e06197f3E8F7FD1fF425d66c8594f0",
-  //   tokenId: Math.floor(Math.random() * 50),
-  //   purchaseDate: new Date(),
-  //   productTitle: `Sac CHANEL Model ZP${i + 1}`,
-  //   productDescription: "Urna et pharetra aliquam vestibulum morbi blandit cursus risus.",
-  //   productPriceInWei: Math.floor(Math.random() * 1100000000000),
-  //   imagePath: "/images/product1.png",
-  //   category: ["Art", "Collectibles", "Gaming", "Luxe"][Math.floor(Math.random() * 4)],
-  //   status: Math.random() > 0.1 ? SaleStatusEnum.Escrowed : SaleStatusEnum.SellerCancelled,
-  //   seller: "0x50f30eC99cd8231FB5F3C6096087aa6F49906528",
-  //   buyer: "0xa0Ee7A142d267C1f36714E4a8F75612F20a79720",
-  // }));
+  // const fetchTokenURIsResults = useQueries({
+  //   queries: itemsForPurchase.map((item) => ({
+  //     queryKey: [item.itemId?.toString(), item.tokenId?.toString()],
+  //     queryFn: () => fetchTokenURIs(item),
+  //     enabled: itemsForPurchase.length > 0,
+  //     refetchOnWindowFocus: false,
+  //   })),
+  // });
 
-  const fetchTokenURIsResults = useQueries({
+  // const fetchTokenURIs = async (item: Item) => {
+  //   try {
+  //     console.log("IITem :" + item.tokenId);
+
+  //     const tokenUri = await readContract(wagmiConfig, {
+  //       address: item.nftCollection as Address,
+  //       abi: NWERC721Data.abi,
+  //       functionName: "tokenURI",
+  //       args: [item.tokenId],
+  //       account: address,
+  //     });
+
+  //     item.tokenUri = tokenUri as string;
+
+  //     return item;
+  //   } catch (error) {
+  //     console.error("Error fetching token URI in purchases page: ", error);
+  //   }
+  // };
+
+  const itemsWithTokensJsonsResults = useQueries({
     queries: itemsForPurchase.map((item) => ({
-      queryKey: [item.itemId?.toString(), item.tokenId?.toString()],
-      queryFn: () => fetchTokenURIs(item),
+      queryKey: [item?.itemId?.toString()],
+      queryFn: () => fetchTokensJson(item),
+      //enabled: fetchTokenURIsResults.every((item) => item.isSuccess),
       enabled: itemsForPurchase.length > 0,
       refetchOnWindowFocus: false,
     })),
   });
 
-  const fetchTokenURIs = async (item: Item) => {
+  const fetchTokensJson = async (item: Item) => {
     try {
       console.log("IITem :" + item.tokenId);
 
@@ -63,35 +76,18 @@ const Purchases = () => {
 
       item.tokenUri = tokenUri as string;
 
-      return item;
-    } catch (error) {
-      console.error("Error fetching token URI in purchases page: ", error);
-    }
-  };
-
-  const itemsWithTokensJsonsResults = useQueries({
-    queries: fetchTokenURIsResults.map((item) => ({
-      queryKey: [item.data?.itemId?.toString()],
-      queryFn: () => fetchTokensJson(item.data),
-      enabled: fetchTokenURIsResults.every((item) => item.isSuccess),
-      refetchOnWindowFocus: false,
-    })),
-  });
-
-  const fetchTokensJson = async (item: Item) => {
-    try {
-      console.log(fetchTokenURIsResults);
+      //console.log(fetchTokenURIsResults);
       console.log("ppppppppp For purchases page !!!");
       console.log(item);
 
       const response = await fetch(item.tokenUri);
       const responseJson = await response.json();
 
-      item.category = "Luxe";
-      item.brand = "Big Brand";
-      item.productTitle = responseJson.name;
-      item.productDescription = responseJson.description;
-      item.serialNumber = "serialNumber blabla";
+      item.category = responseJson.productCategory;
+      item.brand = responseJson.brand;
+      item.productTitle = responseJson.productName;
+      item.productDescription = responseJson.productDescription;
+      item.serialNumber = responseJson.serialNumber;
       item.imagePath = responseJson.image;
       return item;
     } catch (error) {
@@ -121,45 +117,20 @@ const Purchases = () => {
           account: address,
         });
 
-        const itemsForPurchaseReponseJson = JSON.parse(
-          JSON.stringify(itemsForPurchaseResponse, (_, v) => (typeof v === "bigint" ? v.toString() : v))
-        ) as {
-          itemId: string;
-          collection: string;
-          tokenId: string;
-          priceInWei: string;
-          seller: string;
-          buyer: string;
-          status: number;
-          timestamp: string;
-          sellerRequestsCancellation: boolean;
-          buyerRequestsCancellation: boolean;
-        }[];
-
-        //console.table(itemsIdsForPurchaseResponse);
-
-        // const itemsForPurchaseTyped: Item[] = itemsForPurchaseReponseJson.map((x) => {
-        //   return {
-        //     itemId: x.index,
-        //     nftCollection: x.collection,
-        //     tokenId: x.tokenId,
-        //     priceInWei: x.priceInWei,
-        //     seller: x.seller,
-        //     timestamp: x.timestamp,
-        //     buyer: x.buyer,
-        //     status: x.status,
-        //     sellerRequestsCancellation: x.sellerRequestsCancellation,
-        //     buyerRequestsCancellation: x.buyerRequestsCancellation,
-        //     tokenUri: undefined,
-
-        //     category: undefined,
-        //     brand: undefined,
-        //     productTitle: undefined,
-        //     productDescription: undefined,
-        //     serialNumber: undefined,
-        //     imagePath: undefined,
-        //   };
-        // });
+        // const itemsForPurchaseReponseJson = JSON.parse(
+        //   JSON.stringify(itemsForPurchaseResponse, (_, v) => (typeof v === "bigint" ? v.toString() : v))
+        // ) as {
+        //   itemId: string;
+        //   collection: string;
+        //   tokenId: string;
+        //   priceInWei: string;
+        //   seller: string;
+        //   buyer: string;
+        //   status: number;
+        //   timestamp: string;
+        //   sellerRequestsCancellation: boolean;
+        //   buyerRequestsCancellation: boolean;
+        // }[];
 
         console.log(
           "itemsForPurchaseResponseeeeeeNOT :" +
@@ -215,24 +186,17 @@ const Purchases = () => {
     }
   };
 
-  useEffect(() => {
-    if (isConnected) {
-      getPurchases();
-    }
-  }, [isConnected]);
-
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
   const totalPages = Math.ceil(itemsWithTokensJsonsResults.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
 
-  if (
-    !itemsWithTokensJsonsResults.every((item) => item.data) ||
-    itemsWithTokensJsonsResults.some((item) => item.isLoading)
-  ) {
-    return <NWLoader />;
-  }
+  useEffect(() => {
+    if (isConnected) {
+      getPurchases();
+    }
+  }, [isConnected]);
 
   return (
     <div className="max-w-6xl mx-auto p-8">
@@ -288,40 +252,48 @@ const Purchases = () => {
         <Button className="bg-blue-600 bg-purple-600 hover:bg-purple-700">Apply Filters</Button>
       </div>
 
-      {/* Grille de cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 gap-4 place-items-center sm:place-items-start">
-        {itemsWithTokensJsonsResults.slice(startIndex, endIndex).map((purchase, index) => (
-          <PurchaseCard key={index} productPurchased={purchase.data} />
-        ))}
-      </div>
-
-      {/* Pagination */}
-      <div className="flex justify-center items-center space-x-2 mt-8">
-        <Button
-          variant="outline"
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-        >
-          Previous
-        </Button>
-        {Array.from({ length: totalPages }, (_, i) => (
-          <Button
-            key={i + 1}
-            variant={currentPage === i + 1 ? "default" : "outline"}
-            onClick={() => setCurrentPage(i + 1)}
-            className="w-10 h-10"
-          >
-            {i + 1}
-          </Button>
-        ))}
-        <Button
-          variant="outline"
-          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-          disabled={currentPage === totalPages}
-        >
-          Next
-        </Button>
-      </div>
+      {itemsWithTokensJsonsResults.some((item) => item.isLoading) ? (
+        <NWLoader />
+      ) : !itemsWithTokensJsonsResults.some((item) => item.data) || !isConnected ? (
+        <div className="flex flex-col items-center justify-center md:mt-5 pb18">
+          <p className="text-xl font-semibold text-gray-700">There are no items available.</p>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 gap-4 place-items-center sm:place-items-start">
+            {itemsWithTokensJsonsResults.slice(startIndex, endIndex).map((purchase, index) => (
+              <PurchaseCard key={index} productPurchased={purchase.data} refetchPurchases={getPurchases} />
+            ))}
+          </div>
+          {/* Pagination */}
+          <div className="flex justify-center items-center space-x-2 mt-8">
+            <Button
+              variant="outline"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            {Array.from({ length: totalPages }, (_, i) => (
+              <Button
+                key={i + 1}
+                variant={currentPage === i + 1 ? "default" : "outline"}
+                onClick={() => setCurrentPage(i + 1)}
+                className="w-10 h-10"
+              >
+                {i + 1}
+              </Button>
+            ))}
+            <Button
+              variant="outline"
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   );
 };

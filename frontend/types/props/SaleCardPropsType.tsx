@@ -3,4 +3,5 @@ import { Item } from "./Item";
 
 export type SaleCardPropsType = {
   productSold: Item;
+  refetchSales: () => Promise<void>;
 };

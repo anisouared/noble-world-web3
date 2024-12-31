@@ -1,5 +1,5 @@
 import { NftCardPropsType } from "@/types/props/NftCardPropsType";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import {
   Dialog,
@@ -31,59 +31,12 @@ import { ConnectorAccountNotFoundError } from "wagmi";
 const NftCard = (props: NftCardPropsType) => {
   const { nft, refetchNFTCollection } = props;
   const { address, isConnected } = useAccount();
+  const innerRef = useRef();
 
   const [loading, setLoading] = useState<boolean>(false);
   const [priceInEther, setPriceInEther] = useState<string>("");
   const [tokenEscrowed, setTokenEscrowed] = useState<boolean>(false);
   const [openDialog, setOpenDialog] = useState<boolean>(false);
-  // const {
-  //   data: callApproveTokenHash,
-  //   error: callApproveTokenError,
-  //   isPending: callApproveTokenIsPending,
-  //   isSuccess: callApproveTokenIsSuccess,
-  //   writeContract: callApproveTokenWriteContract,
-  // } = useWriteContract({});
-  // const {
-  //   data: callApproveTokenTransaction,
-  //   isError,
-  //   isLoading,
-  // } = useTransaction({
-  //   hash: callApproveTokenHash,
-  // });
-  // const {
-  //   isLoading: callApproveTokenIsLoading,
-  //   isSuccess: callApproveTokenTransactionIsSuccess,
-  //   error: callApproveTokenTransactionError,
-  // } = useWaitForTransactionReceipt({ hash: callApproveTokenHash });
-  // const approveToken = async (collectionAddress: Address, tokenId: BigInt) => {
-  //   callApproveTokenWriteContract({
-  //     address: collectionAddress,
-  //     abi: NWERC721Data.abi,
-  //     functionName: "approve",
-  //     args: [NWMainContract.address, tokenId],
-  //   });
-  // };
-
-  // const {
-  //   data: callEscrowItemHash,
-  //   error: callEscrowItemError,
-  //   isPending: callEscrowItemIsPending,
-  //   isSuccess: callEscrowItemIsSuccess,
-  //   writeContract: callEscrowItemWriteContract,
-  // } = useWriteContract({});
-  // const {
-  //   isLoading: callEscrowItemIsLoading,
-  //   isSuccess: callEscrowItemTransactionIsSuccess,
-  //   error: callEscrowItemTransactionError,
-  // } = useWaitForTransactionReceipt({ hash: callEscrowItemHash });
-  // const escrowItem = async (collectionAddress: Address, tokenId: BigInt, priceInWei: BigInt) => {
-  //   callEscrowItemWriteContract({
-  //     address: NWMainContract.address as Address,
-  //     abi: NWMainData.abi,
-  //     functionName: "escrowItem",
-  //     args: [collectionAddress, tokenId, priceInWei],
-  //   });
-  // };
 
   const approveNFT = async () => {
     console.log("start approve NFT");
@@ -125,6 +78,7 @@ const NftCard = (props: NftCardPropsType) => {
     try {
       if (priceInEther) {
         setLoading(true);
+
         await approveNFT();
         const escrowNFTSuccess = await EscrowNFT();
         if (escrowNFTSuccess) {
@@ -132,6 +86,8 @@ const NftCard = (props: NftCardPropsType) => {
           setLoading(false);
           setTokenEscrowed(true);
         }
+
+        await refetchNFTCollection();
         setTokenEscrowed(true);
       }
     } catch (error) {
@@ -141,12 +97,8 @@ const NftCard = (props: NftCardPropsType) => {
     }
   };
 
-  const handleOnCloseDialog = async (open: boolean) => {
-    if (!open) {
-      await refetchNFTCollection();
-    }
-
-    setOpenDialog(open);
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpenDialog(isOpen);
   };
 
   let dialogContentToShow = null;
@@ -157,7 +109,10 @@ const NftCard = (props: NftCardPropsType) => {
   }
 
   return (
-    <Dialog open={openDialog} onOpenChange={handleOnCloseDialog}>
+    <Dialog //ref={innerRef}
+      open={openDialog}
+      onOpenChange={handleOpenChange}
+    >
       <DialogTrigger asChild>
         <Card
           key={nft.id}

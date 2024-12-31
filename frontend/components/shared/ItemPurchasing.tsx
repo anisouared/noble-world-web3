@@ -1,6 +1,6 @@
 import React from "react";
 
-const ItemPurchased = ({ itemId, tokenId }: { itemId: bigint; tokenId: bigint }) => {
+const ItemPurchasing = ({ itemId, tokenId }: { itemId: bigint; tokenId: bigint }) => {
   return (
     <div className="bg-white p-6 md:mx-auto ">
       <svg viewBox="0 0 24 24" className="text-green-600 w-16 h-16 mx-auto my-6">
@@ -11,14 +11,14 @@ const ItemPurchased = ({ itemId, tokenId }: { itemId: bigint; tokenId: bigint })
       </svg>
 
       <div className="text-center">
-        <h3 className="md:text-2xl text-base text-gray-900 font-semibold text-center">Purchase completed !</h3>
+        <h3 className="md:text-2xl text-base text-gray-900 font-semibold text-center">Purchase has been initiated.</h3>
         <p className="text-gray-600 my-2 pt-2">
           Item <span className="font-bold">#{itemId.toString()}</span> (Token{" "}
-          <span className="font-bold">#{tokenId.toString()}</span>) has been purchased.
+          <span className="font-bold">#{tokenId.toString()}</span>) has been paid.
         </p>
       </div>
     </div>
   );
 };
 
-export default ItemPurchased;
+export default ItemPurchasing;

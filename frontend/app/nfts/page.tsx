@@ -41,54 +41,9 @@ const Nfts = () => {
   const { address, isConnected } = useAccount();
   const [collectionAddress, setCollectionAddress] = useState<Address>("0x");
   const [tokenIds, setTokenIds] = useState<number[]>([]);
-  const [nftsData, setNftsData] = useState<NFTData[]>();
-  const [isNftsDataFetched, setIsNftsDataFetched] = useState(false);
 
-  const nfts: Array<NftCardType> = [];
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
-  const totalPages = Math.ceil(nfts.length / itemsPerPage);
-
-  const getCurrentPageItems = (
-    fetchTokenJsonsResults: UseQueryResult<
-      | {
-          tokenId: number;
-          responseJson: any;
-        }
-      | undefined,
-      Error
-    >[]
-  ) => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return fetchTokenJsonsResults.slice(startIndex, endIndex);
-  };
-
-  const {
-    data: getFactoryCollectionsData,
-    error: getFactoryCollectionsError,
-    isPending: getFactoryCollectionsPending,
-    refetch: getFactoryCollectionsRefetch,
-  } = useReadContract({
-    address: NWMainContractAddress,
-    abi: NWMainData.abi,
-    functionName: "getFactoryCollections",
-    account: address,
-    query: {
-      enabled: isConnected,
-    },
-  });
-
-  const fetchTokenURIs = async (tokenId: number) => {
+  const fetchTokensJson = async (tokenId: number) => {
     try {
-      // const tokenUri = await viemPublicClient.readContract({
-      //   address: `${collectionAddress}`,
-      //   abi: NWERC721Data.abi,
-      //   functionName: "tokenURI",
-      //   args: [BigInt(tokenId)],
-      //   account: address,
-      // });
       const tokenUri = await readContract(wagmiConfig, {
         address: `${collectionAddress}`,
         abi: NWERC721Data.abi,
@@ -96,20 +51,12 @@ const Nfts = () => {
         args: [BigInt(tokenId)],
         account: address,
       });
-      //console.log("aaaaaaaaaaaaaaaaa");
+      console.log("tokenUriii : " + tokenUri);
 
-      return { tokenId, tokenUri };
-    } catch (error) {
-      console.error("Error fetching token URI: ", error);
-    } finally {
-    }
-  };
-
-  const fetchTokensJson = async (tokenId: number, tokenUri: string) => {
-    try {
-      const response = await fetch(tokenUri);
+      const response = await fetch(tokenUri as string);
       const responseJson = await response.json();
-      //console.log("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+
+      console.log("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
       return { tokenId, responseJson };
     } catch (error) {
       console.error("Error fetching token URI: ", error);
@@ -117,32 +64,37 @@ const Nfts = () => {
     }
   };
 
-  const fetchTokenURIsResults = useQueries({
-    queries: tokenIds.map((tokenId) => ({
-      queryKey: [tokenId],
-      queryFn: () => fetchTokenURIs(tokenId),
-      enabled: tokenIds.length > 0,
-      refetchOnWindowFocus: false,
-    })),
-  });
-
   const tokenJsonsResults = useQueries({
-    queries: fetchTokenURIsResults.map((tokenUri) => ({
+    queries: tokenIds.map((tokenUri) => ({
       queryKey: [tokenUri],
-      queryFn: () => fetchTokensJson(tokenUri.data.tokenId, tokenUri.data.tokenUri),
-      enabled: fetchTokenURIsResults.length > 0,
+      queryFn: () => fetchTokensJson(tokenUri),
+      enabled: tokenIds.length > 0,
       refetchOnWindowFocus: false,
     })),
   });
 
   const getNFTsFromCollection = async () => {
     try {
+      console.log("start getNFTsFromCollection");
+
+      const collectionAddress = await readContract(wagmiConfig, {
+        address: NWMainContractAddress,
+        abi: NWMainData.abi,
+        functionName: "getFactoryCollections",
+        account: address,
+      });
+
+      console.log("collectionAddress : " + collectionAddress);
+      setCollectionAddress(collectionAddress as Address);
+
       const mintedNftsLogs = await viemPublicClient.getLogs({
-        address: collectionAddress,
+        address: collectionAddress as Address,
         event: parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"),
-        fromBlock: BigInt(3039035),
+        fromBlock: BigInt(3043760),
         toBlock: "latest",
       });
+
+      console.log("mintedNftsLogs  :" + mintedNftsLogs);
 
       const updatedNftsInfos = mintedNftsLogs
         .reduce((acc, current) => {
@@ -158,9 +110,11 @@ const Nfts = () => {
       console.log("mintedNftsLogs" + mintedNftsLogs);
       console.log("updatedNftsInfos" + updatedNftsInfos);
 
-      const tokenIdsLogs = updatedNftsInfos.map((log) => Number(log.args.tokenId));
-      console.log("tokenIdsLogs : " + tokenIdsLogs);
-      setTokenIds(tokenIdsLogs);
+      if (updatedNftsInfos.length > 0) {
+        const tokenIdsLogs = updatedNftsInfos.map((log) => Number(log.args.tokenId));
+        console.log("tokenIdsLogs : " + tokenIdsLogs);
+        setTokenIds(tokenIdsLogs);
+      }
     } catch (error) {
       toast({
         title: "Error fetching NFTs from collection",
@@ -172,42 +126,46 @@ const Nfts = () => {
 
   useEffect(() => {
     console.log("isconnected :" + isConnected);
-    console.log(getFactoryCollectionsData);
-    setCollectionAddress(getFactoryCollectionsData as Address);
-    getNFTsFromCollection();
-  }, [getFactoryCollectionsData]);
+    if (isConnected) {
+      getNFTsFromCollection();
+    }
+  }, [isConnected]);
 
   return (
     <div className="max-w-6xl mx-auto p-8">
-      {/* Grille de cards */}
-      {isConnected && tokenJsonsResults.every((r) => r.isLoading) ? (
-        <NWLoader />
-      ) : (
-        collectionAddress &&
-        tokenJsonsResults &&
-        isConnected && (
-          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 gap-4 place-items-center sm:place-items-start">
-            <Card className="hover:shadow-xl transition-shadow w-full">
-              <div className="top-2 right-2 flex items-center justify-center text-white text-sm font-bold py-1 px-3 rounded-t bg-pink-500">
-                Collection NFT {collectionAddress[0]}
+      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 gap-4 place-items-center sm:place-items-start">
+        <Card className="hover:shadow-xl transition-shadow w-full">
+          <div className="top-2 right-2 flex items-center justify-center text-white text-sm font-bold py-1 px-3 rounded-t bg-pink-500">
+            Collection NFT {collectionAddress[0] != "0" ? collectionAddress[0] : ""}
+          </div>
+          {tokenJsonsResults.some((r) => r.isLoading) || !tokenJsonsResults.some((r) => r.data) || !isConnected ? (
+            !isConnected || tokenIds.length == 0 ? (
+              <div className="flex flex-col items-center justify-center m-12 mt-8">
+                <p className="text-xl font-semibold text-gray-700">You do not have any NFTs.</p>
+                <p className="text-lg text-gray-500">Please log in or refresh the page.</p>
               </div>
-              <div className="flex items-center justify-center">
-                <Carousel className="w-full p-6">
+            ) : (
+              <NWLoader />
+            )
+          ) : (
+            <div className="flex items-center justify-center">
+              <Carousel className="w-full p-6">
+                {tokenJsonsResults.every((item) => item.isSuccess) && (
                   <CarouselContent>
-                    {tokenJsonsResults.map((nft, index) => (
-                      <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                    {tokenJsonsResults.map((nft) => (
+                      <CarouselItem key={nft.data?.tokenId} className="md:basis-1/2 lg:basis-1/3">
                         {nft.data && (
                           <NftCard
                             nft={{
                               id: undefined,
-                              category: undefined,
+                              category: nft.data.responseJson.productCategory,
                               tokenId: nft.data.tokenId,
-                              brand: "the Brand blabla",
+                              brand: nft.data.responseJson.brand,
                               nftCollection: collectionAddress[0],
-                              productTitle: nft.data.responseJson["name"],
-                              serialNumber: "serialNumber blabla",
-                              productDescription: nft.data.responseJson["description"],
-                              imagePath: nft.data.responseJson["image"],
+                              productTitle: nft.data.responseJson.productName,
+                              serialNumber: nft.data.responseJson.serialNumber,
+                              productDescription: nft.data.responseJson.productDescription,
+                              imagePath: nft.data.responseJson.image,
                             }}
                             refetchNFTCollection={getNFTsFromCollection}
                           />
@@ -215,18 +173,18 @@ const Nfts = () => {
                       </CarouselItem>
                     ))}
                   </CarouselContent>
-                  <div className="absolute top-1/2 left-5 transform -translate-y-1/2 z-10">
-                    <CarouselPrevious className="p-2 bg-white rounded-full shadow-md hover:bg-gray-200" />
-                  </div>
-                  <div className="absolute top-1/2 right-5 transform -translate-y-1/2 z-10">
-                    <CarouselNext className="p-2 bg-white rounded-full shadow-md hover:bg-gray-200" />
-                  </div>
-                </Carousel>
-              </div>
-            </Card>
-          </div>
-        )
-      )}
+                )}
+                <div className="absolute top-1/2 left-5 transform -translate-y-1/2 z-10">
+                  <CarouselPrevious className="p-2 bg-white rounded-full shadow-md hover:bg-gray-200" />
+                </div>
+                <div className="absolute top-1/2 right-5 transform -translate-y-1/2 z-10">
+                  <CarouselNext className="p-2 bg-white rounded-full shadow-md hover:bg-gray-200" />
+                </div>
+              </Carousel>
+            </div>
+          )}
+        </Card>
+      </div>
     </div>
   );
 };

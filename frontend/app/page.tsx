@@ -24,21 +24,59 @@ import NWLoader from "@/components/shared/NWLoader";
 const Gallery = () => {
   //const [loading, setLoading] = useState<boolean>(false);
 
-  const { address } = useAccount();
+  const { isConnected, address, isConnecting, isReconnecting } = useAccount();
   //const [fetchItemsForSale, setFetchItemsForSale] = useState<Boolean>(false);
   const [itemForSale, setItemForSale] = useState<Item[]>([]);
 
-  const fetchTokenURIsResults = useQueries({
+  // const fetchTokenURIsResultsForGallery = useQueries({
+  //   queries: itemForSale.map((item) => ({
+  //     queryKey: [item.itemId?.toString(), item.tokenId?.toString()],
+  //     queryFn: () => fetchTokenURIsForGallery(item),
+  //     enabled: itemForSale.length > 0,
+  //     refetchOnWindowFocus: false,
+  //   })),
+  // });
+
+  // const fetchTokenURIsForGallery = async (item: Item) => {
+  //   try {
+  //     console.log("start fetchTokenURIs");
+  //     console.log(item.nftCollection);
+
+  //     const tokenUri = await readContract(wagmiConfig, {
+  //       address: item.nftCollection as Address,
+  //       abi: NWERC721Data.abi,
+  //       functionName: "tokenURI",
+  //       args: [item.tokenId],
+  //       account: address,
+  //     });
+
+  //     item.tokenUri = tokenUri as string;
+
+  //     console.log("iiiiiiiiiii");
+  //     console.log(item);
+
+  //     return item;
+  //   } catch (error) {
+  //     console.error("Error fetching token URI: ", error);
+  //   } finally {
+  //   }
+  // };
+
+  const itemsWithTokensJsonsResults = useQueries({
     queries: itemForSale.map((item) => ({
-      queryKey: [item.itemId?.toString(), item.tokenId?.toString()],
-      queryFn: () => fetchTokenURIs(item),
+      queryKey: [item?.itemId?.toString()],
+      queryFn: () => fetchTokensJsonForGallery(item),
+      //enabled: fetchTokenURIsResultsForGallery.every((item) => item.isSuccess),
       enabled: itemForSale.length > 0,
       refetchOnWindowFocus: false,
     })),
   });
 
-  const fetchTokenURIs = async (item: Item) => {
+  const fetchTokensJsonForGallery = async (item: Item) => {
     try {
+      console.log("start fetchTokenURIs");
+      console.log(item.nftCollection);
+
       const tokenUri = await readContract(wagmiConfig, {
         address: item.nftCollection as Address,
         abi: NWERC721Data.abi,
@@ -52,36 +90,18 @@ const Gallery = () => {
       console.log("iiiiiiiiiii");
       console.log(item);
 
-      return item;
-    } catch (error) {
-      console.error("Error fetching token URI: ", error);
-    } finally {
-    }
-  };
-
-  const itemsWithTokensJsonsResults = useQueries({
-    queries: fetchTokenURIsResults.map((item) => ({
-      queryKey: [item.data?.itemId?.toString()],
-      queryFn: () => fetchTokensJson(item.data),
-      enabled: fetchTokenURIsResults.every((item) => item.isSuccess),
-      refetchOnWindowFocus: false,
-    })),
-  });
-
-  const fetchTokensJson = async (item: Item) => {
-    try {
-      console.log(fetchTokenURIsResults);
+      //console.log(fetchTokenURIsResultsForGallery);
       console.log("ppppppppp ");
       console.log(item);
 
       const response = await fetch(item.tokenUri);
       const responseJson = await response.json();
 
-      item.category = "Luxe";
-      item.brand = "Big Brand";
-      item.productTitle = responseJson.name;
-      item.productDescription = responseJson.description;
-      item.serialNumber = "serialNumber blabla";
+      item.category = responseJson.productCategory;
+      item.brand = responseJson.brand;
+      item.productTitle = responseJson.productName;
+      item.productDescription = responseJson.productDescription;
+      item.serialNumber = responseJson.serialNumber;
       item.imagePath = responseJson.image;
       return item;
     } catch (error) {
@@ -89,36 +109,6 @@ const Gallery = () => {
     } finally {
     }
   };
-
-  // const {
-  //   data: getItemsBatchData,
-  //   error: getItemsBatchError,
-  //   isPending: getItemsBatchPending,
-  //   refetch: getItemsBatchRefetch,
-  // } = useReadContract({
-  //   address: NWMainContract.address as Address,
-  //   abi: NWMainData.abi,
-  //   functionName: "getItemsBatch",
-  //   args: [itemsIdsForSale],
-  //   account: address,
-  //   query: {
-  //     enabled: itemsIdsForSale.length > 0,
-  //   },
-  // });
-
-  // const products: Array<GalleryCardType> = Array.from({ length: 48 }, (_, i) => ({
-  //   id: i + 1,
-  //   title: `Sac CHANEL Model ZP${i + 1}`,
-  //   description: "Urna et pharetra aliquam vestibulum morbi blandit cursus risus.",
-  //   priceInWei: Math.floor(Math.random() * 1100000000000),
-  //   imagePath: "/images/product1.png",
-  //   category: ["Art", "Collectibles", "Gaming", "Luxe"][Math.floor(Math.random() * 4)],
-  //   nftCollection: "0x3337c58ed8e06197f3E8F7FD1fF425d66c8594f0",
-  //   tokenId: Math.floor(Math.random() * 50),
-  //   brand: ["GUCCI", "Chanel", "Louis Vuitton", "Hermès"][Math.floor(Math.random() * 4)],
-  //   serialNumber: Math.floor(Math.random() * 6456345345).toString(),
-  //   seller: "0x50f30eC99cd8231FB5F3C6096087aa6F49906528",
-  // }));
 
   const getAllItemsForSale = async () => {
     try {
@@ -129,7 +119,7 @@ const Gallery = () => {
         event: parseAbiItem(
           "event EscrowedItems(uint256 indexed itemId, address collection, uint256 indexed tokenId, uint256 priceInWei, address indexed seller, uint timestamp)"
         ),
-        fromBlock: BigInt(3039035),
+        fromBlock: BigInt(3043760),
         toBlock: "latest",
       });
 
@@ -160,7 +150,7 @@ const Gallery = () => {
       const paidItemsLogs = await viemPublicClient.getLogs({
         address: NWMainContract.address as Address,
         event: parseAbiItem("event PaidItems(uint256 indexed itemId, address indexed buyer, uint timestamp)"),
-        fromBlock: BigInt(3039035),
+        fromBlock: BigInt(3043760),
         toBlock: "latest",
       });
 
@@ -170,14 +160,14 @@ const Gallery = () => {
       const canceledSalesLogs = await viemPublicClient.getLogs({
         address: NWMainContract.address as Address,
         event: parseAbiItem("event SaleConcellation(uint256 itemId, uint timestamp)"),
-        fromBlock: BigInt(3039035),
+        fromBlock: BigInt(3043760),
         toBlock: "latest",
       });
 
       var canceledSalesIds = canceledSalesLogs.map((x) => x.args.itemId);
       console.log("canceledSalesLogs : " + canceledSalesIds);
 
-      var itemsForSale = escrowedItems.filter(
+      const itemsForSale = escrowedItems.filter(
         (item) => !paidItemsIds.includes(item.itemId) && !canceledSalesIds.includes(item.itemId)
       ) as Item[];
       setItemForSale(itemsForSale);
@@ -190,15 +180,6 @@ const Gallery = () => {
       console.error("Error retrieving items for sale", error);
     }
   };
-
-  useEffect(() => {
-    console.log("passsss");
-    getAllItemsForSale();
-  }, []);
-
-  console.log("address" + address);
-  console.log(fetchTokenURIsResults);
-  console.log(itemsWithTokensJsonsResults);
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 16;
@@ -237,24 +218,17 @@ const Gallery = () => {
     </div>
   );
 
-  if (itemsWithTokensJsonsResults.some((item) => item.isLoading)) {
-    return (
-      <>
-        {dialogContentToShow}
-        <NWLoader />
-      </>
-    );
-  } else if (!itemsWithTokensJsonsResults.some((item) => item.data)) {
-    return (
-      <>
-        {dialogContentToShow}
-        <div className="flex flex-col items-center justify-center md:pt-20">
-          <p className="text-xl font-semibold text-gray-700">There are no items available for sale.</p>
-          <p className="text-lg text-gray-500">Please check back later.</p>
-        </div>
-      </>
-    );
-  }
+  useEffect(() => {
+    if (isConnected) {
+      console.log("passsss 222");
+      getAllItemsForSale();
+    }
+  }, [isConnected]);
+
+  // console.log("itemsWithTokensJsonsResults : " + itemsWithTokensJsonsResults);
+  // console.log("isReconnecting : " + isReconnecting);
+  // console.log("isConnecting : " + isConnecting);
+  // console.log("isConnected : " + isConnected);
 
   return (
     <>
@@ -313,39 +287,49 @@ const Gallery = () => {
         </div>
 
         {/* Grille de cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 place-items-center sm:place-items-start">
-          {itemsWithTokensJsonsResults.slice(startIndex, endIndex)?.map((item, index) => (
-            <GalleryCard key={index} product={item.data} refetchAllItemsForSale={getAllItemsForSale} />
-          ))}
-        </div>
-
-        {/* Pagination */}
-        <div className="flex justify-center items-center space-x-2 mt-8">
-          <Button
-            variant="outline"
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </Button>
-          {Array.from({ length: totalPages }, (_, i) => (
-            <Button
-              key={i + 1}
-              variant={currentPage === i + 1 ? "default" : "outline"}
-              onClick={() => setCurrentPage(i + 1)}
-              className="w-10 h-10"
-            >
-              {i + 1}
-            </Button>
-          ))}
-          <Button
-            variant="outline"
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </Button>
-        </div>
+        {itemsWithTokensJsonsResults.some((item) => item.isLoading) ? (
+          <NWLoader />
+        ) : !itemsWithTokensJsonsResults.some((item) => item.data) || !isConnected ? (
+          <div className="flex flex-col items-center justify-center md:pt-8 pb18">
+            <p className="text-xl font-semibold text-gray-700">There are no items available for sale.</p>
+            <p className="text-lg text-gray-500">Please check back later.</p>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 place-items-center sm:place-items-start">
+              {itemsWithTokensJsonsResults.slice(startIndex, endIndex)?.map((item, index) => (
+                <GalleryCard key={item.data?.itemId} product={item.data} refetchAllItemsForSale={getAllItemsForSale} />
+              ))}
+            </div>
+            {/* Pagination */}
+            <div className="flex justify-center items-center space-x-2 mt-8">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              {Array.from({ length: totalPages }, (_, i) => (
+                <Button
+                  key={i + 1}
+                  variant={currentPage === i + 1 ? "default" : "outline"}
+                  onClick={() => setCurrentPage(i + 1)}
+                  className="w-10 h-10"
+                >
+                  {i + 1}
+                </Button>
+              ))}
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          </>
+        )}
       </div>
     </>
   );

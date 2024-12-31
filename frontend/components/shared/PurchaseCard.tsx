@@ -9,10 +9,13 @@ import { wagmiConfig } from "@/wagmiConfig";
 import NWMainContract from "@/constants/contractsData/NWMain-address.json";
 import NWMainData from "@/constants/contractsData/NWMain.json";
 import { Address } from "abitype";
+import ItemTransactionCompleted from "./ItemTransactionCompleted";
+import ItemTransactionCancelled from "./ItemTransactionCancelled";
+import NWLoader from "./NWLoader";
 
 const PurchaseCard = (props: PurchaseCardPropsType) => {
-  const { productPurchased } = props;
-  const [isSaleValidatedOrCanceled, setIsSaleValidatedOrCanceled] = useState<Boolean>(false);
+  const { productPurchased, refetchPurchases } = props;
+  const [loading, setLoading] = useState<Boolean>(false);
 
   const getStatusAndBackgroundColor = (status: SaleStatusEnum | undefined) => {
     switch (status) {
@@ -54,15 +57,19 @@ const PurchaseCard = (props: PurchaseCardPropsType) => {
   const handleValidateItemClick = async () => {
     try {
       console.log("handle validationnnn");
+      setLoading(true);
 
       const validationItemReceipt = await validateItem();
 
       if (validationItemReceipt) {
         console.log("validateItemTransactionReceipt DONE");
-        setIsSaleValidatedOrCanceled(true);
+        setLoading(false);
       }
     } catch (error) {
+      setLoading(false);
       console.error("Error while validating the sale by the buyer.");
+    } finally {
+      await refetchPurchases();
     }
   };
 
@@ -91,29 +98,22 @@ const PurchaseCard = (props: PurchaseCardPropsType) => {
   const handleCancelSaleClick = async () => {
     try {
       console.log("handle validationnnn from Purchase page");
-
+      setLoading(true);
       const cancelSaleReceipt = await cancelSale();
 
       if (cancelSaleReceipt) {
         console.log("cancelSaleReceipt in Purchase Page DONE");
-        setIsSaleValidatedOrCanceled(true);
+        setLoading(false);
+        await refetchPurchases();
       }
     } catch (error) {
+      setLoading(false);
       console.error("Error while canceling the sale from Purchases page.");
     }
   };
 
-  // useEffect(() => {
-  //   if (
-  //     productPurchased.status == SaleStatusEnum.Cancellation ||
-  //     productPurchased.status == SaleStatusEnum.SaleTimeout ||
-  //     productPurchased.status == SaleStatusEnum.Purchased ||
-  //     productPurchased.buyerRequestsCancellation
-  //   ) {
-  //     setIsSaleValidatedOrCanceled(true);
-  //   }
-  // }, [productPurchased]);
-
+  console.log("productPurchased : " + productPurchased.tokenId);
+  console.log("productPurchased status: " + productPurchased.status);
   return (
     <Card
       key={productPurchased.itemId}
@@ -124,64 +124,91 @@ const PurchaseCard = (props: PurchaseCardPropsType) => {
           getStatusAndBackgroundColor(productPurchased?.status)[1]
         } shadow-[0_1px_10px_rgba(0,0,0,0.7)]`}
       >
-        #{productPurchased.itemId?.toString()} - {getStatusAndBackgroundColor(productPurchased?.status)[0]}
+        #{productPurchased.itemId?.toString()} - {getStatusAndBackgroundColor(productPurchased?.status)[0]}{" "}
+        {productPurchased.status != SaleStatusEnum.Cancellation &&
+        (productPurchased.buyerRequestsCancellation || productPurchased.sellerRequestsCancellation)
+          ? "(CANCELLATION REQUESTED)"
+          : ""}
       </div>
 
       <CardContent className="p-4 pb-3 flex justify-between items-stretch">
-        <div className="relative aspect-square rounded-lg overflow-hidden flex-grow">
+        <div className="relative aspect-square rounded-lg overflow-hidden flex-grow max-w-[300px] max-h-[360px]">
           <img
             src={productPurchased.imagePath}
             alt={productPurchased.productTitle}
             className="object-cover h-full w-full p-1 rounded-xl"
           />
         </div>
+        {loading ? (
+          <div className="flex flex-col justify-between w-full h-full md:w-2/3 flex-grow mt-8">
+            <NWLoader />
+          </div>
+        ) : (
+          <div className="flex flex-col justify-between pb-1 pr-5 pl-4 w-full md:w-2/3 flex-grow">
+            <div className="w-full">
+              <h2 className="text-lg font-semibold text-center truncate" title={productPurchased.productTitle}>
+                `{productPurchased.productTitle}
+              </h2>
+              <h3
+                className="text-sm pt-2 text-gray-600 font-semibold text-center truncate"
+                title={productPurchased.productDescription}
+              >
+                {productPurchased.productDescription}
+              </h3>
+            </div>
+            <div className="w-full pt-1 pb-1 p-3 bg-white rounded-lg shadow-md mb-3 mt-3 shadow-[0_0_4px_rgba(0,0,0,0.7)]">
+              <dl className="text-gray-900">
+                <div className="flex justify-between py-1 border-b">
+                  <dt className="text-gray-500 text-sm font-medium pr-6 truncate">Price (Wei)</dt>
+                  <dd className="text-md font-semibold truncate truncate">{productPurchased.priceInWei}</dd>
+                </div>
+                <div className="flex justify-between py-1 border-b">
+                  <dt className="text-gray-500 text-sm font-medium pr-6">Collection</dt>
+                  <dd className="text-md font-semibold truncate">{productPurchased.nftCollection}</dd>
+                </div>
+                <div className="flex justify-between py-1 border-b">
+                  <dt className="text-gray-500 text-sm font-medium pr-6">Token Id</dt>
+                  <dd className="text-md font-semibold truncate">#{productPurchased.tokenId}</dd>
+                </div>
+                <div className="flex justify-between py-1 border-b">
+                  <dt className="text-gray-500 text-sm font-medium pr-6 truncate">Purchase date</dt>
+                  <dd className="text-md font-semibold truncate">{productPurchased.timestamp}</dd>
+                </div>
+                <div className="flex justify-between py-1">
+                  <dt className="text-gray-500 text-sm font-medium pr-6">Seller</dt>
+                  <dd className="text-md font-semibold truncate">{productPurchased.seller}</dd>
+                </div>
+              </dl>
+            </div>
 
-        <div className="flex flex-col justify-between pt-1 pb-1 pr-5 pl-4 w-full md:w-2/3 flex-grow">
-          <div className="w-full">
-            <h2 className="text-lg font-semibold text-center ">{productPurchased.productTitle}</h2>
-            <h3 className="text-gray-600 font-semibold text-center">{productPurchased.productDescription}</h3>
+            {productPurchased.status == SaleStatusEnum.Purchased ||
+            productPurchased.status == SaleStatusEnum.Cancellation ||
+            productPurchased.buyerRequestsCancellation ? (
+              productPurchased.status == SaleStatusEnum.Purchased ? (
+                <ItemTransactionCompleted />
+              ) : (
+                <ItemTransactionCancelled />
+              )
+            ) : (
+              <div className="flex flex-col justify-between w-full h-full mt-1">
+                <Button
+                  className="bg-red-400 hover:bg-red-500 mt-auto mb-2 border-transparent"
+                  onClick={handleCancelSaleClick}
+                  //disabled={!!isSaleValidatedOrCanceled}
+                >
+                  CANCEL SALE
+                </Button>
+                <Button
+                  className="bg-green-400 hover:bg-green-500 mt-auto border-transparent"
+                  onClick={handleValidateItemClick}
+                  //disabled={!!isSaleValidatedOrCanceled}
+                >
+                  VALIDATE
+                </Button>
+              </div>
+            )}
           </div>
-          <div className="w-full pt-1 pb-1 p-3 bg-white rounded-lg shadow-md mb-3 mt-3 shadow-[0_0_4px_rgba(0,0,0,0.7)]">
-            <dl className="text-gray-900">
-              <div className="flex justify-between py-1 border-b">
-                <dt className="text-gray-500 font-medium pr-6 truncate">Price (Wei)</dt>
-                <dd className="text-md font-semibold truncate truncate">{productPurchased.priceInWei}</dd>
-              </div>
-              <div className="flex justify-between py-1 border-b">
-                <dt className="text-gray-500 font-medium pr-6">Collection</dt>
-                <dd className="text-md font-semibold truncate">{productPurchased.nftCollection}</dd>
-              </div>
-              <div className="flex justify-between py-1 border-b">
-                <dt className="text-gray-500 font-medium pr-6">Token Id</dt>
-                <dd className="text-md font-semibold truncate">#{productPurchased.tokenId}</dd>
-              </div>
-              <div className="flex justify-between py-1 border-b">
-                <dt className="text-gray-500 font-medium pr-6 truncate">Purchase date</dt>
-                <dd className="text-md font-semibold truncate">{productPurchased.timestamp}</dd>
-              </div>
-              <div className="flex justify-between py-1">
-                <dt className="text-gray-500 font-medium pr-6">Seller</dt>
-                <dd className="text-md font-semibold truncate">{productPurchased.seller}</dd>
-              </div>
-            </dl>
-          </div>
-          <div className="flex flex-col justify-between w-full h-full mt-2">
-            <Button
-              className="bg-red-400 hover:bg-red-500 mt-auto mb-2 border-transparent"
-              onClick={handleCancelSaleClick}
-              //disabled={!!isSaleValidatedOrCanceled}
-            >
-              CANCEL SALE
-            </Button>
-            <Button
-              className="bg-green-400 hover:bg-green-500 mt-auto border-transparent"
-              onClick={handleValidateItemClick}
-              //disabled={!!isSaleValidatedOrCanceled}
-            >
-              VALIDATE
-            </Button>
-          </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   );
