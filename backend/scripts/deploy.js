@@ -10,7 +10,7 @@ async function main() {
 
   const NWMainContainer = await ethers.getContractFactory("NWMain");
   const NWMain = await NWMainContainer.deploy(NWERC721Factory.target, 10);
-  //const NWMain = await NWMainContainer.deploy("0x5FbDB2315678afecb367f032d93F642f64180aa3", 10);
+  //const NWMain = await NWMainContainer.deploy("0x7DcA81576Cd495e4eD373aB83E36CeFd218ee4f0", 10);
 
   console.log("NWMain contract address :", NWMain.target);
 

@@ -253,8 +253,8 @@ contract NWMain is Ownable {
 
             if (item.sellerRequestsCancellation && item.buyerRequestsCancellation) {
                 IERC721(item.collection).transferFrom(address(this), item.seller, item.tokenId);
-                (bool sellerFundsSent, ) = item.seller.call{value: item.priceInWei}("");
-                require(sellerFundsSent, "Unable to refund funds to seller");
+                (bool buyerFundsSent, ) = item.buyer.call{value: item.priceInWei}("");
+                require(buyerFundsSent, "Unable to refund funds to buyer");
                 item.status = SaleStatus.Cancellation;
             }
         } else {
