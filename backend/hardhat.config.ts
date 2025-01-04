@@ -7,7 +7,7 @@ import "@nomicfoundation/hardhat-ethers";
 import "@nomicfoundation/hardhat-chai-matchers";
 
 dotenvConfig();
-
+const PRIVATE_KEY_LOCALHOST_HARDHAT = "0000000000000000000000000000000000000000000000000000000000000000";
 const INFURA_SEPOLIA_RPC_URL = process.env.INFURA_SEPOLIA_RPC_URL || "";
 const INFURA_HOLESKY_RPC_URL = process.env.INFURA_HOLESKY_RPC_URL || "";
 
@@ -17,6 +17,7 @@ const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
 const config: HardhatUserConfig = {
   solidity: "0.8.20",
   networks: {
+    hardhat: {},
     sepolia: {
       url: INFURA_SEPOLIA_RPC_URL,
       accounts: [`0x${PRIVATE_KEY}`],
