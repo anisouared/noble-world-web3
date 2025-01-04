@@ -32,9 +32,11 @@ jobs:
         run: npm ci
 
       - name: Run Hardhat tests
-        run: npx hardhat test --network hardhat
+        run: npx hardhat test
         env:
           PRIVATE_KEY_LOCALHOST_HARDHAT: ${{ secrets.PRIVATE_KEY_LOCALHOST_HARDHAT }}
+          PRIVATE_KEY_BASE_SEPOLIA: ${{ secrets.PRIVATE_KEY_BASE_SEPOLIA }}
+          PRIVATE_KEY_BASE_MAINNET: ${{ secrets.PRIVATE_KEY_BASE_MAINNET }}
           INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
-          BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
+          BASESCAN_API_KEY: ${{ secrets.INFURA_HOLESKY_RPC_URL }}
           PUBLIC_TEST_ADDRESS: ${{ secrets.PUBLIC_TEST_ADDRESS }}
