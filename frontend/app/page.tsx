@@ -117,7 +117,7 @@ const Gallery = () => {
       const escrowedItemsLogs = await viemPublicClient.getLogs({
         address: NWMainContract.address as Address,
         event: parseAbiItem(
-          "event EscrowedItems(uint256 indexed itemId, address collection, uint256 indexed tokenId, uint256 priceInWei, address indexed seller, uint timestamp)"
+          "event EscrowedItems(uint256 indexed itemId, uint256 indexed tokenId, address indexed seller, address collection, uint256 priceInWei, uint256 timestamp)"
         ),
         fromBlock: BigInt(3043760),
         toBlock: "latest",
@@ -149,7 +149,7 @@ const Gallery = () => {
 
       const paidItemsLogs = await viemPublicClient.getLogs({
         address: NWMainContract.address as Address,
-        event: parseAbiItem("event PaidItems(uint256 indexed itemId, address indexed buyer, uint timestamp)"),
+        event: parseAbiItem("event PaidItems(uint256 indexed itemId, address indexed buyer, uint256 timestamp)"),
         fromBlock: BigInt(3043760),
         toBlock: "latest",
       });
@@ -159,7 +159,7 @@ const Gallery = () => {
 
       const canceledSalesLogs = await viemPublicClient.getLogs({
         address: NWMainContract.address as Address,
-        event: parseAbiItem("event SaleConcellation(uint256 itemId, uint timestamp)"),
+        event: parseAbiItem("event SaleConcellation(uint256 itemId, uint256 timestamp)"),
         fromBlock: BigInt(3043760),
         toBlock: "latest",
       });

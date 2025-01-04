@@ -2,6 +2,9 @@ import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 //import "@nomiclabs/hardhat-etherscan";
 import { config as dotenvConfig } from "dotenv";
+import "@typechain/hardhat";
+import "@nomicfoundation/hardhat-ethers";
+import "@nomicfoundation/hardhat-chai-matchers";
 
 dotenvConfig();
 
