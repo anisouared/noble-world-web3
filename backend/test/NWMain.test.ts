@@ -1,9 +1,7 @@
 import { expect, assert } from "chai";
 import hre from "hardhat";
-import { Contract } from "ethers";
-import { loadFixture, time } from "@nomicfoundation/hardhat-toolbox/network-helpers";
-import { NWERC721, NWERC721Factory, NWMain } from "../typechain-types";
-import { Signer } from "ethers";
+import { loadFixture } from "@nomicfoundation/hardhat-toolbox/network-helpers";
+import { NWERC721 } from "../typechain-types";
 
 describe("Tests Noble World Main Contract", function () {
   async function deployContractsFixture() {
@@ -95,20 +93,16 @@ describe("Tests Noble World Main Contract", function () {
   }
 
   describe("Tests contract deployment", function () {
-    it("Should deploy Noble World Factory contract and set the owner", async function () {
-      const { owner, NWFactoryContractFixture, firstNftCollectionAddressFixture } = await loadFixture(
-        deployContractsAndNFTCollectionFixture
-      );
+    it("Should DEPLOY Noble World Factory contract and set the correct owner", async function () {
+      const { owner, NWFactoryContractFixture } = await loadFixture(deployContractsAndNFTCollectionFixture);
       let NWFactoryContractOwner = await NWFactoryContractFixture.owner();
       let deploymentOwnerAddress = await owner.getAddress();
 
       assert(NWFactoryContractOwner, deploymentOwnerAddress);
     });
 
-    it("Should deploy Noble World Main contract and set the owner", async function () {
-      const { owner, NWMainContractFixture, firstNftCollectionAddressFixture } = await loadFixture(
-        deployContractsAndNFTCollectionFixture
-      );
+    it("Should DEPLOY Noble World Main contract and set the correct owner", async function () {
+      const { owner, NWMainContractFixture } = await loadFixture(deployContractsAndNFTCollectionFixture);
 
       let NWMainContractOwner = await NWMainContractFixture.owner();
       let deploymentOwnerAddress = await owner.getAddress();
@@ -133,10 +127,9 @@ describe("Tests Noble World Main Contract", function () {
     });
 
     it("Should REVERT if caller is not owner of the NFT (token)", async function () {
-      const { NWMainContractFixture, NWFactoryContractFixture, firstNftCollectionAddressFixture, owner, addr1, addr2 } =
+      const { NWMainContractFixture, NWFactoryContractFixture, firstNftCollectionAddressFixture, addr1, addr2 } =
         await loadFixture(deployContractsAndNFTCollectionFixture);
       await NWFactoryContractFixture.connect(addr1)["mint()"](); // Token 1
-      //await NWFactoryContractFixture.connect(addr1)["mint()"](); // Token 2
 
       await expect(
         NWMainContractFixture.connect(addr2)["escrowItem(address,uint256,uint256)"](
@@ -148,7 +141,7 @@ describe("Tests Noble World Main Contract", function () {
     });
 
     it("Should EMIT an event when the token is escrowed into Noble World Contract", async function () {
-      const { NWMainContractFixture, NWFactoryContractFixture, firstNftCollectionAddressFixture, owner, addr1, addr2 } =
+      const { NWMainContractFixture, NWFactoryContractFixture, firstNftCollectionAddressFixture, addr1 } =
         await loadFixture(deployContractsAndNFTCollectionFixture);
 
       await NWFactoryContractFixture.connect(addr1)["mint()"](); // Token 1
@@ -207,7 +200,7 @@ describe("Tests Noble World Main Contract", function () {
       expect(itemsIdsForSale[1]).to.equal(1);
     });
 
-    it("Should REVERT NFT collection was not recognized, using simplified function", async function () {
+    it("Should REVERT when NFT collection is not recognized, using simplified function", async function () {
       const { NWMainContractFixture, addr1 } = await loadFixture(deployContractsFixture);
 
       await expect(NWMainContractFixture.connect(addr1)["escrowItem(uint256,uint256)"](1, 1)).to.be.rejectedWith(
@@ -223,7 +216,7 @@ describe("Tests Noble World Main Contract", function () {
       );
     });
 
-    it("Should ESCROW minted tokens into Noble World Contrac,t using simplified function", async function () {
+    it("Should ESCROW minted tokens into Noble World Contract, using simplified function", async function () {
       const { NWMainContractFixture, NWFactoryContractFixture, firstNftCollectionAddressFixture, addr1 } =
         await loadFixture(deployContractsAndNFTCollectionFixture);
 
@@ -253,15 +246,13 @@ describe("Tests Noble World Main Contract", function () {
 
   describe("Tests Buy Function", function () {
     it("Should REVERT if not enough funds provided to buy the item", async function () {
-      const { owner, addr1, addr2, NWFactoryContractFixture, firstNftCollectionAddressFixture, NWMainContractFixture } =
-        await loadFixture(deployContractsAndEscrowItemFixture);
+      const { addr2, NWMainContractFixture } = await loadFixture(deployContractsAndEscrowItemFixture);
 
       await expect(NWMainContractFixture.connect(addr2).buyItem(0)).to.be.rejectedWith("Not enough funds provided");
     });
 
     it("Should REVERT if status of sale is not Escrowed", async function () {
-      const { owner, addr1, addr2, NWFactoryContractFixture, firstNftCollectionAddressFixture, NWMainContractFixture } =
-        await loadFixture(deployContractsAndEscrowItemFixture);
+      const { addr2, NWMainContractFixture } = await loadFixture(deployContractsAndEscrowItemFixture);
 
       await NWMainContractFixture.connect(addr2).buyItem(0, { value: 1000 });
       await NWMainContractFixture.connect(addr2).cancelSale(0);
@@ -272,8 +263,7 @@ describe("Tests Noble World Main Contract", function () {
     });
 
     it("Should EMIT an event when sale is purchased", async function () {
-      const { owner, addr1, addr2, NWFactoryContractFixture, firstNftCollectionAddressFixture, NWMainContractFixture } =
-        await loadFixture(deployContractsAndEscrowItemFixture);
+      const { addr2, NWMainContractFixture } = await loadFixture(deployContractsAndEscrowItemFixture);
 
       const tx = await NWMainContractFixture.connect(addr2).buyItem(0, { value: 1000 });
       const txReceipt = await tx.wait();
@@ -292,8 +282,7 @@ describe("Tests Noble World Main Contract", function () {
 
   describe("Tests Validation of Sale", function () {
     it("Should REVERT if the caller is not the buyer", async function () {
-      const { owner, addr1, addr2, NWFactoryContractFixture, firstNftCollectionAddressFixture, NWMainContractFixture } =
-        await loadFixture(deployContractsAndEscrowItemFixture);
+      const { addr1, addr2, NWMainContractFixture } = await loadFixture(deployContractsAndEscrowItemFixture);
 
       await NWMainContractFixture.connect(addr2).buyItem(0, { value: 1000 });
 
@@ -303,8 +292,7 @@ describe("Tests Noble World Main Contract", function () {
     });
 
     it("Should REVERT if status of sale is not Purchasing", async function () {
-      const { owner, addr1, addr2, NWFactoryContractFixture, firstNftCollectionAddressFixture, NWMainContractFixture } =
-        await loadFixture(deployContractsAndEscrowItemFixture);
+      const { addr2, NWMainContractFixture } = await loadFixture(deployContractsAndEscrowItemFixture);
 
       await NWMainContractFixture.connect(addr2).buyItem(0, { value: 1000 });
       await NWMainContractFixture.connect(addr2).validateItem(0);
@@ -315,8 +303,7 @@ describe("Tests Noble World Main Contract", function () {
     });
 
     it("Should EMIT an event when sale is validated", async function () {
-      const { owner, addr1, addr2, NWFactoryContractFixture, firstNftCollectionAddressFixture, NWMainContractFixture } =
-        await loadFixture(deployContractsAndEscrowItemFixture);
+      const { addr1, addr2, NWMainContractFixture } = await loadFixture(deployContractsAndEscrowItemFixture);
 
       await NWMainContractFixture.connect(addr2).buyItem(0, { value: 1000 });
 
@@ -338,15 +325,7 @@ describe("Tests Noble World Main Contract", function () {
 
   describe("Tests Cancellation of Sale", function () {
     it("Should REVERT if caller is not buyer or seller", async function () {
-      const {
-        owner,
-        addr1,
-        addr2,
-        addr3,
-        NWFactoryContractFixture,
-        firstNftCollectionAddressFixture,
-        NWMainContractFixture,
-      } = await loadFixture(deployContractsAndEscrowItemFixture);
+      const { addr2, addr3, NWMainContractFixture } = await loadFixture(deployContractsAndEscrowItemFixture);
 
       await NWMainContractFixture.connect(addr2).buyItem(0, { value: 1000 });
 
@@ -356,15 +335,7 @@ describe("Tests Noble World Main Contract", function () {
     });
 
     it("Should CANCEL sale buy seller when status is Escrowed", async function () {
-      const {
-        owner,
-        addr1,
-        addr2,
-        addr3,
-        NWFactoryContractFixture,
-        firstNftCollectionAddressFixture,
-        NWMainContractFixture,
-      } = await loadFixture(deployContractsAndEscrowItemFixture);
+      const { addr1, NWMainContractFixture } = await loadFixture(deployContractsAndEscrowItemFixture);
 
       await NWMainContractFixture.connect(addr1).cancelSale(0);
 
@@ -372,15 +343,7 @@ describe("Tests Noble World Main Contract", function () {
     });
 
     it("Should REVERT when status of sale is not Purchasing", async function () {
-      const {
-        owner,
-        addr1,
-        addr2,
-        addr3,
-        NWFactoryContractFixture,
-        firstNftCollectionAddressFixture,
-        NWMainContractFixture,
-      } = await loadFixture(deployContractsAndEscrowItemFixture);
+      const { addr1, addr2, NWMainContractFixture } = await loadFixture(deployContractsAndEscrowItemFixture);
 
       await NWMainContractFixture.connect(addr2).buyItem(0, { value: 1000 });
       await NWMainContractFixture.connect(addr2).validateItem(0);
@@ -389,15 +352,7 @@ describe("Tests Noble World Main Contract", function () {
     });
 
     it("Should REVERT when buyer already requested cancellation", async function () {
-      const {
-        owner,
-        addr1,
-        addr2,
-        addr3,
-        NWFactoryContractFixture,
-        firstNftCollectionAddressFixture,
-        NWMainContractFixture,
-      } = await loadFixture(deployContractsAndEscrowItemFixture);
+      const { addr2, NWMainContractFixture } = await loadFixture(deployContractsAndEscrowItemFixture);
 
       await NWMainContractFixture.connect(addr2).buyItem(0, { value: 1000 });
 
@@ -409,15 +364,7 @@ describe("Tests Noble World Main Contract", function () {
     });
 
     it("Should REVERT when seller already requested cancellation", async function () {
-      const {
-        owner,
-        addr1,
-        addr2,
-        addr3,
-        NWFactoryContractFixture,
-        firstNftCollectionAddressFixture,
-        NWMainContractFixture,
-      } = await loadFixture(deployContractsAndEscrowItemFixture);
+      const { addr1, addr2, NWMainContractFixture } = await loadFixture(deployContractsAndEscrowItemFixture);
 
       await NWMainContractFixture.connect(addr2).buyItem(0, { value: 1000 });
       await NWMainContractFixture.connect(addr1).cancelSale(0);
@@ -428,15 +375,7 @@ describe("Tests Noble World Main Contract", function () {
     });
 
     it("Should EMIT an event if sale has been successfully cancelled", async function () {
-      const {
-        owner,
-        addr1,
-        addr2,
-        addr3,
-        NWFactoryContractFixture,
-        firstNftCollectionAddressFixture,
-        NWMainContractFixture,
-      } = await loadFixture(deployContractsAndEscrowItemFixture);
+      const { addr1, addr2, NWMainContractFixture } = await loadFixture(deployContractsAndEscrowItemFixture);
 
       await NWMainContractFixture.connect(addr2).buyItem(0, { value: 1000 });
       await NWMainContractFixture.connect(addr1).cancelSale(0);
@@ -459,9 +398,7 @@ describe("Tests Noble World Main Contract", function () {
 
   describe("Tests Getters & Setters functions", function () {
     it("Should CHANGE fee account", async function () {
-      const { owner, addr1, addr2, NWFactoryContractFixture, NWMainContractFixture } = await loadFixture(
-        deployContractsFixture
-      );
+      const { addr2, NWMainContractFixture } = await loadFixture(deployContractsFixture);
 
       await NWMainContractFixture.changeFeeAccount(addr2);
       const newFeeAccount = await NWMainContractFixture.feeAccount();
@@ -470,9 +407,7 @@ describe("Tests Noble World Main Contract", function () {
     });
 
     it("Should REVERT if we try to change the fee percent to a value greater than thirty", async function () {
-      const { owner, addr1, addr2, NWFactoryContractFixture, NWMainContractFixture } = await loadFixture(
-        deployContractsFixture
-      );
+      const { NWMainContractFixture } = await loadFixture(deployContractsFixture);
 
       await expect(NWMainContractFixture.changeFeePercent(40)).to.be.rejectedWith(
         "Percentage of fees cannot exceed 30%"
@@ -480,9 +415,7 @@ describe("Tests Noble World Main Contract", function () {
     });
 
     it("Should CHANGE fee percent", async function () {
-      const { owner, addr1, addr2, NWFactoryContractFixture, NWMainContractFixture } = await loadFixture(
-        deployContractsFixture
-      );
+      const { NWMainContractFixture } = await loadFixture(deployContractsFixture);
 
       await NWMainContractFixture.changeFeePercent(25);
       const newFeePercent = await NWMainContractFixture.feePercent();
@@ -490,11 +423,11 @@ describe("Tests Noble World Main Contract", function () {
       expect(await NWMainContractFixture.feePercent()).to.equal(newFeePercent);
     });
 
-    it("Should RETRIEVE a batch of items by their IDS", async function () {
-      const { NWMainContractFixture, NWFactoryContractFixture, firstNftCollectionAddressFixture, owner, addr1, addr2 } =
+    it("Should RETRIEVE a batch of items by their Ids", async function () {
+      const { NWMainContractFixture, NWFactoryContractFixture, firstNftCollectionAddressFixture, addr1 } =
         await loadFixture(deployContractsAndNFTCollectionFixture);
 
-      const nftCollections = await NWFactoryContractFixture.getCollectionsCreated();
+      await NWFactoryContractFixture.getCollectionsCreated();
 
       const firstNftCollection: NWERC721 = await hre.ethers.getContractAt("NWERC721", firstNftCollectionAddressFixture);
 
@@ -521,7 +454,7 @@ describe("Tests Noble World Main Contract", function () {
     });
 
     it("Should RETRIEVE Ids of items for which a given buyer has started the purchase", async function () {
-      const { owner, addr1, addr2, NWFactoryContractFixture, firstNftCollectionAddressFixture, NWMainContractFixture } =
+      const { addr1, addr2, NWFactoryContractFixture, firstNftCollectionAddressFixture, NWMainContractFixture } =
         await loadFixture(deployContractsAndEscrowItemFixture);
 
       const firstNftCollection: NWERC721 = await hre.ethers.getContractAt("NWERC721", firstNftCollectionAddressFixture);
