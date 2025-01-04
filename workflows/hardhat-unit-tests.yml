@@ -2,6 +2,8 @@ name: Launching Noble World unit tests
 
 on:
   push:
+    paths:
+      - "backend/**"
     branches:
       - "develop"
 
