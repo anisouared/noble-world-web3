@@ -75,7 +75,7 @@ npx hardhat run scripts/deploy.js --network holesky
 
 # Authors
 
-Anis OUARED - Lead Developer - Your GitHub
+Anis OUARED - Lead Developer
 
 # License
 
