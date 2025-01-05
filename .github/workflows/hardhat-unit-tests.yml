@@ -32,7 +32,7 @@ jobs:
         run: npm ci
 
       - name: Run Hardhat tests
-        run: npx hardhat test
+        run: npx hardhat test --network hardhat
         env:
           PRIVATE_KEY_LOCALHOST_HARDHAT: ${{ secrets.PRIVATE_KEY_LOCALHOST_HARDHAT }}
           PRIVATE_KEY_BASE_SEPOLIA: ${{ secrets.PRIVATE_KEY_BASE_SEPOLIA }}
