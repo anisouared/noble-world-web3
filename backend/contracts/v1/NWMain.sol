@@ -5,13 +5,15 @@ pragma solidity 0.8.20;
 import "./INWERC721Factory.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 
 /**
  * @title Noble World main Contract, the anti-counterfeiting solution for marketplaces and brands
  * @author Anis OUARED
  * @notice This is an experimental contract
  */
-contract NWMain is Ownable {
+contract NWMain is Ownable, ReentrancyGuard, IERC721Receiver {
     /// @notice Address of the account that will collect sales fees
     address payable public feeAccount;
 
@@ -212,7 +214,7 @@ contract NWMain is Ownable {
             "You are not the owner of this NFT"
         );
 
-        IERC721(_collectionAddress).transferFrom(
+        IERC721(_collectionAddress).safeTransferFrom(
             msg.sender,
             address(this),
             _tokenId
@@ -289,7 +291,7 @@ contract NWMain is Ownable {
      * @notice The buyer validates the sale after receiving the physical product, releases the escrow to recover the NFT, and triggers the seller's payment
      * @param _itemId Item ID to validate
      */
-    function validateItem(uint256 _itemId) external payable {
+    function validateItem(uint256 _itemId) external payable nonReentrant {
         Item memory item = _getItem(_itemId);
         require(item.buyer == msg.sender, "You are not the item buyer");
         require(
@@ -297,7 +299,7 @@ contract NWMain is Ownable {
             "Item has not been repurchased"
         );
 
-        IERC721(item.collection).transferFrom(
+        IERC721(item.collection).safeTransferFrom(
             address(this),
             item.buyer,
             item.tokenId
@@ -330,7 +332,7 @@ contract NWMain is Ownable {
      * @param _itemId Item ID for sale cancellation
      * @dev Since the sale must be cancelled by both parties, this function must be called by both the seller and the buyer
      */
-    function cancelSale(uint256 _itemId) external payable {
+    function cancelSale(uint256 _itemId) external payable nonReentrant {
         Item memory item = _getItem(_itemId);
 
         require(
@@ -339,7 +341,7 @@ contract NWMain is Ownable {
         );
 
         if (item.status == SaleStatus.Escrowed && item.seller == _msgSender()) {
-            IERC721(item.collection).transferFrom(
+            IERC721(item.collection).safeTransferFrom(
                 address(this),
                 _msgSender(),
                 item.tokenId
@@ -369,7 +371,7 @@ contract NWMain is Ownable {
                 item.sellerRequestsCancellation &&
                 item.buyerRequestsCancellation
             ) {
-                IERC721(item.collection).transferFrom(
+                IERC721(item.collection).safeTransferFrom(
                     address(this),
                     item.seller,
                     item.tokenId
@@ -387,5 +389,14 @@ contract NWMain is Ownable {
         items[item.itemId] = item;
 
         emit SaleConcellation(item.itemId, block.timestamp);
+    }
+
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes memory
+    ) public virtual returns (bytes4) {
+        return this.onERC721Received.selector;
     }
 }
