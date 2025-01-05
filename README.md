@@ -31,16 +31,16 @@ Metamask or another Ethereum wallet to interact with the dApp
 
 1. Clone the project:
 
-bash
-Copier le code
+```
 git clone https://github.com/your-username/Noble-World.git
 cd Noble-World
+```
 
 2. Install dependencies:
 
-bash
-Copier le code
+```
 npm install
+```
 
 # or
 
@@ -51,13 +51,12 @@ yarn install
 
 4. Run the project locally:
 
-bash
-Copier le code
+```
 npm run dev
-
 # or
 
 yarn dev
+```
 
 Access the dApp at http://localhost:3000.
 
@@ -67,9 +66,9 @@ Access the dApp at http://localhost:3000.
 
 2. Deploy contracts on Holesky:
 
-bash
-Copier le code
+```
 npx hardhat run scripts/deploy.js --network holesky
+```
 
 3. Verify contracts: After deployment, verify that the contract source code is published on Etherscan for transparency.
 
