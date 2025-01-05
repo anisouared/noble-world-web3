@@ -1,4 +1,4 @@
-name: Noble World Backend Unit Tests
+name: Noble World Unit Tests
 
 on:
   push:
