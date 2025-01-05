@@ -5,10 +5,6 @@ on:
     paths:
       - "backend/**"
     branches: ["develop"]
-  pull_request:
-    paths:
-      - "backend/**"
-    branches: ["develop"]
 
 jobs:
   test:
@@ -24,7 +20,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "18.x"
+          node-version: "20.18.0"
           cache: "npm"
           cache-dependency-path: "./backend/package-lock.json"
 
