@@ -44,7 +44,7 @@ jobs:
         working-directory: ./backend
         run: |
           # Copy modified OpenZeppelin contracts from node_modules to the contracts folder (optional)
-          cp ./backend/dependencies/ERC721.sol ./backend/node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol
+          cp ./dependencies/ERC721.sol ./backend/node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol
 
       - name: Compile contracts
         working-directory: ./backend
