@@ -4,8 +4,7 @@ on:
   push:
     paths:
       - "backend/**"
-    branches:
-      - "develop"
+    branches: ["develop"]
 
 jobs:
   tests:
